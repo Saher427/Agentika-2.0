@@ -50,22 +50,22 @@
   };
 
   // Visual meaning of each tool-call status.
-  // label: words for sentences; stamp: the short verdict printed on the stamp.
+  // label: words for sentences; tag: the short text on the status tag (glyph + word).
   AF.STATUS = {
-    allowed:  { label: "Cleared",                       stamp: "Cleared",  tone: "green" },
-    approved: { label: "Allowed by reviewer",           stamp: "Allowed",  tone: "green" },
-    held:     { label: "Held for review",               stamp: "Held",     tone: null    }, // tone comes from level
-    blocked:  { label: "Blocked by reviewer",           stamp: "Blocked",  tone: "red"   },
-    timeout:  { label: "Blocked · no decision in time", stamp: "Timed out", tone: "red"  },
-    denied:   { label: "Blocked by policy",             stamp: "Denied",   tone: "red"   },
-    error:    { label: "Error",                         stamp: "Error",    tone: "grey"  },
+    allowed:  { label: "Allowed",                       tag: "✓ allowed",     tone: "green" },
+    approved: { label: "Allowed by reviewer",           tag: "✓ allowed by reviewer", tone: "green" },
+    held:     { label: "Held for review",               tag: "◼ held",        tone: null    }, // tone comes from level
+    blocked:  { label: "Blocked by reviewer",           tag: "✕ blocked",     tone: "red"   },
+    timeout:  { label: "Blocked, no decision in time",  tag: "✕ timed out",   tone: "red"   },
+    denied:   { label: "Blocked by policy",             tag: "✕ denied by policy", tone: "red" },
+    error:    { label: "Error",                         tag: "! error",       tone: "grey"  },
   };
 
   AF.toneClasses = {
-    green:  { dot: "bg-cleared",   badge: "stamp stamp-cleared", row: "log-green"  },
-    yellow: { dot: "bg-hold",      badge: "stamp stamp-held",    row: "log-yellow" },
-    red:    { dot: "bg-seized",    badge: "stamp stamp-seized",  row: "log-red"    },
-    grey:   { dot: "bg-slate-400", badge: "stamp stamp-grey",    row: "log-grey"   },
+    green:  { dot: "bg-ok",        badge: "tag tag-ok",      row: ""         },
+    yellow: { dot: "bg-hold",      badge: "tag tag-hold",    row: "row-hold" },
+    red:    { dot: "bg-stop",      badge: "tag tag-stop",    row: "row-stop" },
+    grey:   { dot: "bg-ink-muted", badge: "tag tag-neutral", row: ""         },
   };
 
   AF.toneOf = function (call) {
@@ -129,9 +129,9 @@
     const el = document.getElementById("stream-state");
     if (!el) return;
     const map = {
-      live: ["bg-cleared animate-pulse", "Live"],
-      connecting: ["bg-slate-400", "Connecting…"],
-      down: ["bg-seized", "Reconnecting…"],
+      live: ["bg-ok", "Live"],
+      connecting: ["bg-ink-muted", "Connecting…"],
+      down: ["bg-stop", "Reconnecting…"],
     };
     const m = map[state] || map.connecting;
     el.innerHTML = '<span class="dot ' + m[0] + '"></span>' + m[1];
@@ -161,8 +161,8 @@
     const el = document.getElementById("toast");
     if (!el) return;
     el.textContent = text;
-    el.className = "pointer-events-none fixed bottom-4 right-4 z-50 max-w-sm rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg " +
-      (tone === "red" ? "bg-seized" : tone === "green" ? "bg-cleared" : "bg-ink");
+    el.className = "pointer-events-none fixed bottom-4 right-4 z-50 max-w-sm rounded-box px-4 py-3 text-sm font-medium text-white " +
+      (tone === "red" ? "bg-stop" : tone === "green" ? "bg-ok" : "bg-ink");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { el.classList.add("hidden"); }, 4500);
   };
@@ -196,7 +196,7 @@
       if (!me || !me.user) return;
       AF.user = me.user;
       const box = document.getElementById("nav-user");
-      document.getElementById("nav-user-name").textContent = "Signed in as " + me.user;
+      document.getElementById("nav-user-name").textContent = me.user;
       box.classList.remove("hidden");
       box.classList.add("flex");
       document.getElementById("nav-logout").addEventListener("click", async function () {

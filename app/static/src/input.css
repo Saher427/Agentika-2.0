@@ -2,10 +2,8 @@
  * Rebuild after changing templates or scripts (see README, "Styles"):
  *   tailwindcss -c tailwind.config.js -i app/static/src/input.css -o app/static/css/app.css --minify
  *
- * Design tokens (tailwind.config.js):
- *   paper #EEF1F4 · ink #14213D · cleared #0E7C66 · hold #B86E00 · seized #C8102E · uv #6D28D9
- *   Archivo (display, stamps) · IBM Plex Sans (body) · IBM Plex Mono (tool calls, data)
- * Signature: the UV-lamp panel that shows what the AI read, hidden text glowing.
+ * Tokens live in tailwind.config.js. One accent (blue) for things you can act
+ * on; amber and red only for held and blocked calls; everything else is ink.
  */
 
 @font-face { font-family: "Archivo"; src: url("../fonts/archivo-wdth.woff2") format("woff2-variations"), url("../fonts/archivo-wdth.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
@@ -20,157 +18,133 @@
 @tailwind utilities;
 
 @layer base {
-  html { font-size: 17px; } /* a little larger so the demo reads well on a projector */
-  body {
-    @apply bg-paper font-sans text-ink;
-    /* Faint guilloché-style security pattern, like document stock. */
-    background-image:
-      repeating-linear-gradient(115deg, rgba(20,33,61,.025) 0 1px, transparent 1px 9px),
-      repeating-linear-gradient(65deg, rgba(20,33,61,.02) 0 1px, transparent 1px 11px);
+  html { font-size: 17px; scroll-behavior: smooth; } /* a little larger for the projector */
+  body { @apply bg-paper font-sans text-ink; }
+  /* Paper grain: a fixed, faint noise layer so the ground is not a flat vector. */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.12 0 0 0 0 0.14 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-  h1, h2, h3 { text-wrap: balance; }
-  :focus-visible { outline: 3px solid theme(colors.uv.DEFAULT); outline-offset: 2px; }
-  ::selection { background: theme(colors.uv.glow); color: theme(colors.ink.DEFAULT); }
+  body > * { position: relative; z-index: 1; }
+  h1, h2, h3, p { text-wrap: pretty; }
+  :focus-visible { outline: 2px solid theme(colors.accent.DEFAULT); outline-offset: 2px; border-radius: 2px; }
+  ::selection { background: theme(colors.marker); color: theme(colors.ink.DEFAULT); }
+  code, pre, .font-mono, .tabular { font-variant-numeric: tabular-nums; }
 }
 
 @layer components {
-  /* ---------- Type ---------- */
-  .display { font-family: theme(fontFamily.display); font-stretch: 112%; font-weight: 800; letter-spacing: -0.015em; line-height: 1.02; }
-  .eyebrow { font-family: theme(fontFamily.display); font-stretch: 125%; font-weight: 700; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; @apply text-ink-muted; }
-  .page-title { @apply display text-[2.1rem] sm:text-[2.6rem]; }
-  .page-lede { @apply mt-2 max-w-3xl text-[1.02rem] leading-relaxed text-ink-muted; }
+  /* ---------- Shell ---------- */
+  .topbar { @apply border-b border-ink/90 bg-ink text-[#E9EBE6]; }
+  .nav-link { @apply relative whitespace-nowrap px-3 py-3 text-[.92rem] font-medium text-[#B9BEC6] transition-colors duration-200 hover:text-white; }
+  .nav-link-active { @apply text-white; }
+  .nav-link-active::after { content: ""; position: absolute; left: .75rem; right: .75rem; bottom: -1px; height: 3px; background: theme(colors.accent.soft); border-radius: 2px 2px 0 0; }
 
-  /* ---------- Header ---------- */
-  .site-header { @apply bg-ink text-white; }
-  /* Security thread under the header: microprint lines in the verdict colours. */
-  .security-thread { height: 6px; background:
-      repeating-linear-gradient(90deg, theme(colors.cleared.DEFAULT) 0 18px, transparent 18px 22px, theme(colors.uv.DEFAULT) 22px 30px, transparent 30px 34px, theme(colors.hold.DEFAULT) 34px 40px, transparent 40px 44px),
-      theme(colors.ink.2); opacity: .9; }
-  .nav-link { @apply relative whitespace-nowrap rounded-md px-3 py-1.5 font-medium text-slate-300 transition hover:bg-white/10 hover:text-white; }
-  .nav-link-active { @apply bg-white/10 text-white; box-shadow: inset 0 -2px 0 theme(colors.uv.glow); }
+  .page-title { @apply text-[1.45rem] font-semibold leading-tight tracking-[-0.01em]; }
+  .page-sub { @apply mt-0.5 text-[.95rem] text-ink-muted; }
+  .label { @apply text-[.8rem] font-medium text-ink-muted; }
 
-  /* ---------- Surfaces ---------- */
-  .card { @apply rounded-xl border border-rule bg-card shadow-[0_1px_0_rgba(20,33,61,.04),0_8px_24px_-16px_rgba(20,33,61,.25)]; }
-  .card-head { @apply flex items-center justify-between gap-3 border-b border-rule px-5 py-3; }
-  .card-title { font-family: theme(fontFamily.display); font-stretch: 112%; @apply text-base font-bold; }
+  /* Panels: hairline, no drop shadow. Depth comes from the paper/panel/well tones. */
+  .panel { @apply rounded-panel border border-rule bg-panel; box-shadow: 0 1px 0 rgba(28,31,36,.04); }
+  .panel-head { @apply flex items-baseline justify-between gap-3 border-b border-rule px-4 pb-2.5 pt-3; }
+  .panel-title { @apply text-[1rem] font-semibold; }
 
   /* ---------- Controls ---------- */
-  .input { @apply rounded-lg border border-rule bg-white px-3.5 py-2.5 text-base text-ink shadow-inner placeholder:text-ink-muted/70 focus:border-uv focus:outline-none focus:ring-4 focus:ring-uv/15 disabled:bg-paper; }
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45; }
-  .btn-primary { @apply bg-ink text-white shadow-sm hover:bg-ink-2; }
-  .btn-danger { @apply bg-seized text-white shadow-sm hover:bg-[#A50D26]; }
-  .btn-danger-outline { @apply border-2 border-seized bg-white text-seized hover:bg-seized-soft; }
-  .btn-secondary { @apply bg-cleared text-white shadow-sm hover:bg-[#0B6A57]; }
-  .btn-secondary-outline { @apply border-2 border-cleared bg-white text-cleared hover:bg-cleared-soft; }
-  .kbd { @apply ml-1 rounded border border-white/40 px-1.5 font-mono text-[.7rem] font-semibold; }
+  .input { @apply rounded-box border border-rule-strong bg-white px-3 py-2.5 text-[1rem] text-ink transition-colors duration-200 placeholder:text-ink-muted/70 hover:border-ink-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:bg-well; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-box px-4 py-2.5 text-[.95rem] font-semibold transition duration-200 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45; }
+  .btn-primary { @apply bg-ink text-white hover:bg-ink-2; }
+  .btn-stop { @apply bg-stop text-white hover:bg-[#961c13]; }
+  .btn-quiet { @apply border border-rule-strong bg-white text-ink hover:border-ink-muted hover:bg-well; }
+  .link-btn { @apply rounded-tag px-1 text-[.9rem] font-medium text-accent underline decoration-accent/40 underline-offset-[3px] transition-colors hover:decoration-accent disabled:cursor-not-allowed disabled:opacity-45 disabled:no-underline; }
+  .kbd { @apply ml-1 rounded-tag border border-white/40 px-1 font-mono text-[.72rem] font-semibold leading-tight; }
 
-  .chip { @apply rounded-full border border-rule bg-white px-3.5 py-1.5 text-sm font-medium text-ink-2 transition hover:border-ink hover:bg-ink hover:text-white disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-ink-2; }
+  /* Suggested tasks read like a list of commands, not pills. */
+  .suggest { @apply block w-full rounded-tag px-2 py-1.5 text-left font-mono text-[.86rem] text-ink-2 transition-colors duration-150 hover:bg-well hover:text-ink disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-transparent; }
+  .suggest::before { content: "›"; @apply mr-2 text-accent; }
 
-  .dot { @apply inline-block h-2.5 w-2.5 shrink-0 rounded-full; }
+  .dot { @apply inline-block h-2 w-2 shrink-0 rounded-full; }
 
-  /* ---------- Rubber stamps (verdicts) ---------- */
-  .stamp {
-    font-family: theme(fontFamily.display); font-stretch: 125%; font-weight: 800;
-    @apply inline-flex items-center whitespace-nowrap rounded-[3px] px-1.5 py-[1px] text-[.66rem] uppercase leading-tight tracking-[.12em];
-    border: 1.5px solid currentColor; transform: rotate(-2.5deg);
-    box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.85), inset 0 0 0 2.5px currentColor;
-  }
-  .stamp-cleared { @apply bg-cleared-soft text-cleared; }
-  .stamp-held { @apply bg-hold-soft text-hold-ink; }
-  .stamp-seized { @apply bg-seized-soft text-seized; }
-  .stamp-grey { @apply bg-paper text-ink-muted; }
-  .stamp-uv { @apply bg-uv-soft text-uv; }
+  /* ---------- Status tags: square, glyph + word, never colour alone ---------- */
+  .tag { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-tag border px-1.5 py-px font-mono text-[.74rem] font-semibold leading-snug; }
+  .tag-ok { @apply border-ok/30 bg-ok-soft text-ok; }
+  .tag-hold { @apply border-hold-line bg-hold-soft text-hold; }
+  .tag-stop { @apply border-stop-line bg-stop-soft text-stop; }
+  .tag-neutral { @apply border-rule-strong bg-well text-ink-2; }
 
-  /* Big verdict stamp shown when a reviewer decides. */
-  .verdict {
-    font-family: theme(fontFamily.display); font-stretch: 125%; font-weight: 900;
-    @apply inline-block rounded-md px-4 py-1.5 text-2xl uppercase tracking-[.14em];
-    border: 3px solid currentColor; transform: rotate(-4deg);
-    box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px currentColor;
-    animation: stamp-thud .38s cubic-bezier(.2,1.6,.4,1) both;
-  }
-  @keyframes stamp-thud { from { transform: rotate(-4deg) scale(1.9); } to { transform: rotate(-4deg) scale(1); } }
+  /* ---------- Conversation: a transcript, not chat bubbles ---------- */
+  .msg { @apply border-l-2 pl-3.5; }
+  .msg-who { @apply mb-1 text-[.8rem] font-semibold text-ink-muted; }
+  .msg-user { @apply border-ink; }
+  .msg-agent { @apply border-rule-strong; }
+  .msg-error { @apply border-stop text-stop; }
+  .spinner { @apply inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-rule border-t-accent; }
 
-  /* ---------- Chat ---------- */
-  .bubble-user { @apply max-w-[85%] rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-white shadow-sm; }
-  .bubble-agent { @apply max-w-[92%] rounded-2xl rounded-bl-md border border-rule bg-white px-4 py-3 text-ink shadow-sm; }
-  .bubble-error { @apply border-seized/40 bg-seized-soft text-seized; }
-  .spinner { @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-rule border-t-uv; }
+  /* ---------- Call ledger ---------- */
+  .ledger-row { @apply grid grid-cols-[2.4rem_1fr] gap-x-2 border-b border-rule px-3 py-2.5 last:border-b-0; animation: row-in .25s ease-out; }
+  .ledger-row .serial { @apply pt-px font-mono text-[.74rem] text-ink-muted; }
+  .row-hold { box-shadow: inset 3px 0 0 theme(colors.hold.line); @apply bg-hold-soft/50; }
+  .row-stop { box-shadow: inset 3px 0 0 theme(colors.stop.DEFAULT); @apply bg-stop-soft/40; }
+  .row-current .serial { @apply font-semibold text-ink; }
+  @keyframes row-in { from { transform: translateY(-4px); } to { transform: none; } }
 
-  /* ---------- Checkpoint log: each tool call is a slip passing a gate ---------- */
-  .log-lane { position: relative; }
-  .log-lane::before { content: ""; position: absolute; left: 1.55rem; top: .75rem; bottom: .75rem; width: 2px; background: repeating-linear-gradient(180deg, theme(colors.rule) 0 6px, transparent 6px 11px); }
-  .log-item { @apply relative ml-6 rounded-lg border border-rule bg-white px-3.5 py-2.5 shadow-sm; animation: slip-in .32s ease-out both; }
-  .log-item::before { content: ""; position: absolute; left: -1.05rem; top: 1rem; height: .7rem; width: .7rem; border-radius: 999px; border: 2px solid #fff; box-shadow: 0 0 0 1.5px currentColor; background: currentColor; }
-  .log-green { @apply text-cleared; }
-  .log-yellow { @apply border-hold/50 bg-hold-soft/60 text-hold; }
-  .log-red { @apply border-seized/40 bg-seized-soft/70 text-seized; }
-  .log-grey { @apply text-ink-muted; }
-  .log-item > * { color: theme(colors.ink.DEFAULT); }
-  .log-current { box-shadow: 0 0 0 2px theme(colors.uv.glow); }
-  @keyframes slip-in { from { transform: translateY(-6px); } to { transform: none; } }
-
-  /* Hold bay: the parking area of the checkpoint, edged with hazard stripes. */
-  .hold-bay { @apply relative overflow-hidden rounded-xl border border-hold/50 bg-hold-soft/70;
-    padding-top: 6px; }
-  .hold-bay::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px;
-    background: repeating-linear-gradient(135deg, theme(colors.hold.DEFAULT) 0 10px, theme(colors.ink.DEFAULT) 10px 20px); }
-  .hold-bay .log-item { @apply ml-0 border-hold/60 bg-white; }
-  .hold-bay .log-item::before { display: none; }
+  .bay { @apply rounded-box border border-hold-line bg-hold-soft/60; }
+  .bay .ledger-row { @apply border-hold-line/50 bg-transparent; box-shadow: none; }
 
   /* ---------- Review queue ---------- */
-  .queue-item { @apply block w-full px-5 py-3 text-left transition hover:bg-paper; }
-  .queue-item-active { @apply bg-uv-soft hover:bg-uv-soft; box-shadow: inset 4px 0 0 theme(colors.uv.DEFAULT); }
+  .queue-item { @apply block w-full border-l-[3px] border-transparent px-4 py-3 text-left transition-colors duration-150 hover:bg-well; }
+  .queue-item-active { @apply border-accent bg-accent-soft/60 hover:bg-accent-soft/60; }
 
-  /* ---------- Evidence chain ---------- */
-  .chain { position: relative; }
-  .chain::before { content: ""; position: absolute; left: .85rem; top: .4rem; bottom: .4rem; width: 2px; background: theme(colors.rule); }
-  .chain-step { @apply relative pl-11; }
-  .ev-step { font-family: theme(fontFamily.display); font-stretch: 118%; @apply flex items-center gap-2 text-[.78rem] font-bold uppercase tracking-[.12em] text-ink-muted; }
-  .ev-num { font-family: theme(fontFamily.display); font-stretch: 100%; @apply absolute left-0 top-[-.15rem] inline-flex h-[1.8rem] w-[1.8rem] items-center justify-center rounded-full border-2 border-card bg-ink text-xs font-bold text-white ring-2 ring-rule; }
+  /* ---------- Case file (evidence) ---------- */
+  .case-fields { @apply grid gap-x-6 gap-y-3 sm:grid-cols-[8.5rem_1fr]; }
+  .case-fields dt { @apply text-[.8rem] font-medium text-ink-muted sm:pt-0.5; }
+  .case-fields dd { @apply min-w-0; }
+  .risk-num { @apply font-num text-[3.4rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums; font-stretch: 85%; }
+  .meter { @apply relative h-1.5 w-full rounded-full bg-well; }
+  .meter-fill { @apply absolute inset-y-0 left-0 rounded-full; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+  .meter-tick { @apply absolute -top-1 h-3.5 w-px bg-ink-muted/60; }
 
-  /* Risk meter: 0-100 with the policy thresholds (30 hold, 70 red) marked. */
-  .meter { @apply relative h-2.5 w-full overflow-hidden rounded-full; background: linear-gradient(90deg, rgba(255,255,255,.35) 0 30%, rgba(255,255,255,.5) 30% 70%, rgba(255,255,255,.7) 70% 100%); }
-  .meter-fill { @apply absolute inset-y-0 left-0 rounded-full bg-white; transition: width .6s cubic-bezier(.2,.8,.2,1); }
-  .meter-tick { @apply absolute inset-y-[-3px] w-[2px] bg-current opacity-60; }
+  .step-num { @apply font-mono text-[.8rem] font-semibold text-ink-muted; }
 
-  /* Ordinary source text (light). */
-  .evidence-text { @apply max-h-64 overflow-auto whitespace-pre-wrap break-words px-4 py-3 font-mono text-[.82rem] leading-relaxed text-ink-2; }
-  .hl { @apply rounded bg-seized-soft px-0.5 font-semibold text-seized ring-2 ring-seized/60; }
+  .src { @apply overflow-hidden rounded-box border border-rule bg-white; }
+  .src-bar { @apply flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-rule bg-well/70 px-3 py-2; }
+  .src-tab { @apply rounded-tag px-2 py-0.5 text-[.82rem] font-medium text-ink-muted transition-colors hover:text-ink; }
+  .src-tab[aria-selected="true"] { @apply bg-white text-ink shadow-[0_0_0_1px_theme(colors.rule.strong)]; }
+  .src-body { @apply max-h-72 overflow-auto whitespace-pre-wrap break-words px-4 py-3 font-mono text-[.84rem] leading-relaxed text-ink-2; }
+  .src-rendered { @apply max-h-72 overflow-auto whitespace-pre-wrap break-words px-4 py-3 text-[.95rem] leading-relaxed text-ink; }
+  .src-note { @apply flex items-start gap-2 border-t border-stop-line/60 bg-stop-soft/50 px-3 py-2 text-[.85rem] text-stop; }
 
-  /* SIGNATURE — the UV lamp: what the AI actually read, hidden text glowing. */
-  .uv-panel { @apply overflow-hidden rounded-xl border border-uv/50 bg-uv-deep text-uv-glow shadow-lg;
-    background-image: radial-gradient(120% 90% at 15% 0%, rgba(109,40,217,.45), transparent 60%), radial-gradient(80% 60% at 100% 100%, rgba(109,40,217,.25), transparent 70%); }
-  .uv-head { @apply flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-2.5; }
-  .uv-text { @apply max-h-72 overflow-auto whitespace-pre-wrap break-words px-4 py-4 font-mono text-[.84rem] leading-relaxed; color: rgba(217,204,255,.55); }
-  .hl-uv { @apply rounded px-1 font-semibold;
-    color: #fff; background: rgba(167,139,250,.28);
-    text-shadow: 0 0 6px #c4b5fd, 0 0 18px #8b5cf6, 0 0 32px #7c3aed;
-    box-shadow: 0 0 0 1px rgba(216,204,255,.7), 0 0 22px rgba(139,92,246,.75);
-    animation: uv-flicker 1.6s ease-in-out .2s 1; }
-  @keyframes uv-flicker { 0%, 100% { filter: brightness(1); } 10% { filter: brightness(1.8); } 16% { filter: brightness(.75); } 24% { filter: brightness(1.4); } }
-  .person-text { @apply max-h-72 overflow-auto whitespace-pre-wrap break-words bg-white px-4 py-4 text-[.95rem] leading-relaxed text-ink; }
-  .uv-toggle { @apply rounded-md border border-white/25 px-2.5 py-1 text-xs font-semibold text-uv-glow transition hover:bg-white/10; }
+  /* Highlighter pen: uneven ends, wraps line by line, like ink on paper. */
+  .mark {
+    @apply font-semibold text-ink;
+    padding: .05em .3em; margin: 0 -.15em; border-radius: .35em .9em .45em .8em;
+    background: linear-gradient(100deg, rgba(255,226,122,0) .5%, rgba(255,226,122,.92) 2.5%, rgba(255,214,90,.95) 60%, rgba(255,226,122,.75) 97.5%, rgba(255,226,122,0) 99.5%);
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
+    text-decoration: underline wavy theme(colors.stop.DEFAULT); text-decoration-thickness: 1.5px; text-underline-offset: 4px;
+  }
+  .hl { @apply mark; } /* name kept for AF.highlight() */
+
+  .evidence-text { @apply max-h-60 overflow-auto whitespace-pre-wrap break-words px-4 py-3 font-mono text-[.82rem] leading-relaxed text-ink-2; }
+
+  .call-box { @apply rounded-box border border-ink/80 bg-ink px-4 py-3 font-mono text-[.88rem] text-[#E3E6EA]; }
+
+  .result-bar { @apply flex flex-wrap items-center gap-3 rounded-box border px-4 py-3 text-[.95rem] font-medium; animation: row-in .25s ease-out; }
+  .result-ok { @apply border-ok/30 bg-ok-soft text-ok; }
+  .result-stop { @apply border-stop-line bg-stop-soft text-stop; }
 
   /* ---------- Benchmark ---------- */
-  .stat-label { @apply eyebrow; }
-  .stat-value { @apply display mt-2 text-[2.6rem] tabular-nums; }
-  .stat-sub { @apply mt-1 text-sm text-ink-muted; }
-  .tile { @apply h-7 w-7 rounded-[4px] border transition hover:scale-110; }
-  .tile-pass-attack { @apply border-cleared bg-cleared; }
-  .tile-pass-normal { @apply border-cleared bg-cleared-soft; }
-  .tile-fail { @apply border-seized bg-seized; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 2px, transparent 2px 5px); }
-  .filter-btn { @apply rounded-md px-3 py-1.5 font-medium text-ink-muted transition hover:bg-paper; }
-  .filter-btn-active { @apply bg-ink text-white hover:bg-ink; }
-
-  /* ---------- Login badge ---------- */
-  .badge-card { @apply relative overflow-hidden rounded-2xl border border-rule bg-card shadow-xl; }
-  .badge-band { @apply relative h-24 bg-ink;
-    background-image:
-      repeating-radial-gradient(circle at 18% 120%, transparent 0 9px, rgba(217,204,255,.16) 9px 10px),
-      repeating-radial-gradient(circle at 82% -20%, transparent 0 11px, rgba(14,124,102,.28) 11px 12px); }
+  .stat { @apply px-5 py-4; }
+  .stat-label { @apply label; }
+  .stat-value { @apply mt-1 font-num text-[2.5rem] font-extrabold leading-none tracking-[-0.02em] tabular-nums; font-stretch: 90%; }
+  .stat-sub { @apply mt-1.5 text-[.85rem] text-ink-muted; }
+  .tile { @apply h-6 w-6 rounded-[2px] border transition-transform duration-150 hover:-translate-y-0.5 focus-visible:-translate-y-0.5; }
+  .tile-pass-attack { @apply border-ink bg-ink; }
+  .tile-pass-normal { @apply border-rule-strong bg-white; }
+  .tile-fail { @apply border-stop bg-stop; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 2px, transparent 2px 5px); }
+  .filter-btn { @apply rounded-tag px-2.5 py-1 text-[.85rem] font-medium text-ink-muted transition-colors hover:bg-well hover:text-ink; }
+  .filter-btn-active { @apply bg-ink text-white hover:bg-ink hover:text-white; }
+  .table-head { @apply border-b border-rule text-left text-[.78rem] font-medium text-ink-muted; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }

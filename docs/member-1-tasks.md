@@ -20,7 +20,7 @@ Legend: ✅ done in this repository · 🟡 prepared, a person must finish it ·
 | M1-10 | Evidence card with the four buttons | ✅ tested against the mock API | same as M1-09 |
 | M1-11 | Benchmark results page | ✅ shows a "Mock data" warning until real results exist | [`app/templates/bench.html`](../app/templates/bench.html), [`app/static/js/bench.js`](../app/static/js/bench.js) |
 | M1-12 | Login page for the demo reviewer account | ✅ page done; the password check is Member 2's (M2-18) | [`app/templates/login.html`](../app/templates/login.html), [`app/static/js/login.js`](../app/static/js/login.js) |
-| M1-13 | Visual polish: projector, phone | ✅ "Checkpoint" design: hold bay and inspection lane, rubber-stamp verdicts, UV-lamp evidence view; self-hosted fonts; no sideways scroll at 375 px | [`app/static/src/input.css`](../app/static/src/input.css) |
+| M1-13 | Visual polish: projector, phone | ✅ operator-tool design (reworked with the frontend-design and redesign skills): numbered call ledger, waiting box for held calls, case file with highlighter-marked evidence; one accent colour; self-hosted fonts; no sideways scroll at phone width | [`app/static/src/input.css`](../app/static/src/input.css) |
 | M1-14 | Test every deploy on the live URL | 🟡 checklist ready; needs the live URL | [`docs/test-checklist.md`](test-checklist.md) |
 | M1-15 | Rehearse the demo 10 times on the live URL | 🟡 script and tracking table ready | [`docs/demo-script.md`](demo-script.md), [`docs/test-checklist.md`](test-checklist.md) |
 | M1-16 | Record the 2–3 minute demo video | 🟡 shot list and checklist ready; record it on the live URL | [`docs/demo-script.md`](demo-script.md) |

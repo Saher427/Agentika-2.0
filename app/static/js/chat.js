@@ -1,4 +1,6 @@
-/* Chat page (task M1-08): send a task, show the reply and a live log of tool calls. */
+/* Chat page (task M1-08): send a task, show the transcript and a live,
+ * numbered ledger of every tool call. Held calls wait in their own box
+ * until a reviewer decides, then drop into the ledger in order. */
 (function () {
   "use strict";
   const AF = window.AF;
@@ -9,9 +11,13 @@
   const messages = document.getElementById("messages");
   const statusEl = document.getElementById("chat-status");
   const log = document.getElementById("log");
-  const emptyChat = document.getElementById("empty-chat");
+  const bay = document.getElementById("bay");
+  const bayCount = document.getElementById("bay-count");
+  const emptyBay = document.getElementById("empty-bay");
+  const suggestions = document.querySelectorAll("#suggestions .suggest");
 
   const calls = new Map();       // call id -> call object
+  const serials = new Map();     // call id -> running number shown in the ledger
   let currentRun = null;
   let busy = false;
   let elapsedTimer = null;
@@ -21,19 +27,17 @@
     return "run_" + Math.random().toString(16).slice(2, 10);
   }
 
-  // ---------- Conversation ----------
+  // ---------- Transcript ----------
 
   function addMessage(role, html, extraClass) {
-    if (emptyChat) emptyChat.remove();
-    const wrap = document.createElement("div");
-    wrap.className = role === "user" ? "flex justify-end" : "flex justify-start";
-    const bubble = document.createElement("div");
-    bubble.className = (role === "user" ? "bubble-user" : "bubble-agent") + (extraClass ? " " + extraClass : "");
-    bubble.innerHTML = html;
-    wrap.appendChild(bubble);
-    messages.appendChild(wrap);
+    const empty = document.getElementById("empty-chat");
+    if (empty) empty.remove();
+    const div = document.createElement("div");
+    div.className = "msg " + (role === "user" ? "msg-user" : "msg-agent") + (extraClass ? " " + extraClass : "");
+    div.innerHTML = '<p class="msg-who">' + (role === "user" ? "You" : "Assistant") + "</p>" + html;
+    messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
-    return bubble;
+    return div;
   }
 
   function setStatus(html) {
@@ -46,7 +50,7 @@
     busy = on;
     input.disabled = on;
     sendBtn.disabled = on;
-    document.querySelectorAll("#suggestions .chip").forEach(function (b) { b.disabled = on; });
+    suggestions.forEach(function (b) { b.disabled = on; });
     sendBtn.textContent = on ? "Working…" : "Send";
   }
 
@@ -61,11 +65,11 @@
     const secs = Math.round((Date.now() - startedAt) / 1000);
     const held = heldInRun(currentRun);
     if (held) {
-      setStatus('<span class="font-semibold text-seized">' + held + " action" + (held > 1 ? "s are" : " is") +
-        " waiting for a security reviewer.</span> The agent is paused. " +
-        '<a class="font-semibold text-uv underline underline-offset-2" href="/review" target="_blank" rel="noopener">Open the reviewer dashboard</a> · ' + secs + "s");
+      setStatus('<span class="font-semibold text-hold">Paused: ' + held + " call" + (held > 1 ? "s" : "") +
+        " waiting for a reviewer.</span> " +
+        '<a class="link-btn" href="/review" target="_blank" rel="noopener">Open Review</a> <span class="font-mono text-[.8rem]">' + secs + "s</span>");
     } else {
-      setStatus('<span class="inline-flex items-center gap-2"><span class="spinner"></span>The agent is working… ' + secs + "s</span>");
+      setStatus('<span class="inline-flex items-center gap-2"><span class="spinner"></span>Working <span class="font-mono text-[.8rem]">' + secs + "s</span></span>");
     }
   }
 
@@ -73,7 +77,7 @@
     task = (task || "").trim();
     if (!task || busy) return;
     currentRun = newRunId();
-    addMessage("user", AF.esc(task));
+    addMessage("user", '<p class="text-[1rem]">' + AF.esc(task) + "</p>");
     input.value = "";
     setBusy(true);
     const startedAt = Date.now();
@@ -88,7 +92,7 @@
       });
       renderReply(data);
     } catch (err) {
-      addMessage("agent", '<p class="font-semibold">Something went wrong.</p><p class="mt-1 text-sm">' + AF.esc(err.message) + "</p>", "bubble-error");
+      addMessage("agent", '<p class="font-semibold">The task did not finish.</p><p class="mt-0.5 text-[.92rem]">' + AF.esc(err.message) + "</p>", "msg-error");
     } finally {
       clearInterval(elapsedTimer);
       setStatus("");
@@ -102,88 +106,87 @@
     calls.forEach(function (c) { if (c.run_id === (data.run_id || currentRun)) runCalls.push(c); });
     const stopped = runCalls.filter(function (c) { return ["blocked", "denied", "timeout"].indexOf(c.status) !== -1; });
 
-    let html = '<div class="whitespace-pre-wrap">' + AF.esc(data.reply || "(no reply)") + "</div>";
+    let html = '<div class="whitespace-pre-wrap text-[1rem] leading-relaxed">' + AF.esc(data.reply || "(no reply)") + "</div>";
     if (stopped.length) {
-      html += '<div class="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-seized/30 bg-seized-soft px-3 py-2 text-sm text-seized">' +
-        '<span class="stamp stamp-seized">Stopped</span><span class="font-semibold">Agent Firewall stopped ' + stopped.length + " action" + (stopped.length > 1 ? "s" : "") + ":</span> " +
-        stopped.map(function (c) { return AF.esc(c.tool) + " (" + AF.esc((AF.STATUS[c.status] || {}).label || c.status) + ")"; }).join(", ") +
-        "</div>";
+      html += '<p class="mt-2.5 text-[.9rem] text-stop">✕ The firewall stopped ' +
+        stopped.map(function (c) { return '<span class="font-mono">' + AF.esc(c.tool) + "</span> (" + AF.esc((AF.STATUS[c.status] || {}).label || c.status).toLowerCase() + ")"; }).join(", ") +
+        ". It did not run.</p>";
     }
     if (runCalls.length) {
-      html += '<p class="mt-2 font-mono text-[.7rem] uppercase tracking-wider text-ink-muted">' + runCalls.length + " tool call" + (runCalls.length > 1 ? "s" : "") +
-        " checked by the firewall</p>";
+      html += '<p class="mt-1.5 text-[.8rem] text-ink-muted">' + runCalls.length + " tool call" + (runCalls.length > 1 ? "s" : "") + " checked</p>";
     }
     addMessage("agent", html);
   }
 
-  // ---------- Live log ----------
+  // ---------- Ledger ----------
 
-  function argSummary(call) {
+  function target(call) {
     const a = call.args || {};
-    const keys = ["to", "record_id", "attachment", "month", "status", "unread_only"];
     const parts = [];
-    keys.forEach(function (k) { if (a[k] !== undefined && a[k] !== "") parts.push(k + "=" + AF.argValue(a[k])); });
-    if (a.cc && a.cc.length) parts.push("cc=" + a.cc.join(", "));
+    if (a.to) parts.push("to " + a.to);
+    if (a.cc && a.cc.length) parts.push("cc " + a.cc.join(", "));
+    if (a.attachment) parts.push("+ " + a.attachment);
+    if (a.record_id) parts.push(a.record_id);
+    if (a.month) parts.push(a.month);
+    if (a.unread_only) parts.push("unread only");
     return parts.join(" · ");
   }
 
   function renderCall(call) {
     const tone = AF.toneOf(call);
     const cls = AF.toneClasses[tone] || AF.toneClasses.grey;
-    const st = AF.STATUS[call.status] || { label: call.status || "unknown", stamp: call.status || "?" };
-    let stamp = st.stamp;
-    if (call.status === "held") stamp = tone === "red" ? "Held · high risk" : "Held";
+    const st = AF.STATUS[call.status] || { label: call.status || "unknown", tag: call.status || "?" };
+    let tag = st.tag;
+    if (call.status === "held") tag = tone === "red" ? "◼ held · high risk" : "◼ held";
+    if (!serials.has(call.id)) serials.set(call.id, serials.size + 1);
 
     const li = document.createElement("li");
-    li.className = "log-item " + cls.row + (call.run_id === currentRun ? " log-current" : "");
+    li.className = "ledger-row " + cls.row + (call.run_id === currentRun ? " row-current" : "");
     li.dataset.id = call.id;
-    const reasons = (call.reasons || []).slice(0, 2).map(AF.esc).join(" · ");
-    const summary = argSummary(call);
+    const reasons = (call.reasons || []).slice(0, 2).map(AF.esc).join("; ");
+    const tgt = target(call);
     li.innerHTML =
-      '<div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">' +
-        '<span class="font-mono text-[.92rem] font-semibold">' + AF.esc(call.tool) + "</span>" +
-        '<span class="' + cls.badge + '" title="' + AF.esc(st.label) + '">' + AF.esc(stamp) + "</span>" +
-        '<span class="ml-auto font-mono text-[.7rem] tabular-nums text-ink-muted">' +
-          (call.risk != null ? "risk " + AF.esc(call.risk) + " · " : "") + AF.esc(AF.time(call.ts)) + "</span>" +
-      "</div>" +
-      (summary ? '<p class="mt-1 break-words font-mono text-xs text-ink-2">' + AF.esc(summary) + "</p>" : "") +
-      (reasons && call.status !== "allowed" ? '<p class="mt-1 text-xs text-ink-muted">' + reasons + "</p>" : "") +
-      (call.status === "held" && call.held_id ? '<a class="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-uv underline underline-offset-2" target="_blank" rel="noopener" href="/review?id=' + encodeURIComponent(call.held_id) + '">Inspect this call →</a>' : "");
+      '<span class="serial">' + String(serials.get(call.id)).padStart(2, "0") + "</span>" +
+      '<div class="min-w-0">' +
+        '<div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">' +
+          '<span class="font-mono text-[.9rem] font-semibold">' + AF.esc(call.tool) + "</span>" +
+          (tgt ? '<span class="min-w-0 break-words font-mono text-[.8rem] text-ink-2">' + AF.esc(tgt) + "</span>" : "") +
+          '<span class="ml-auto flex items-baseline gap-2">' +
+            (call.risk != null ? '<span class="font-mono text-[.76rem] text-ink-muted">' + AF.esc(call.risk) + "</span>" : "") +
+            '<span class="' + cls.badge + '" title="' + AF.esc(st.label) + '">' + AF.esc(tag) + "</span>" +
+          "</span>" +
+        "</div>" +
+        (reasons && call.status !== "allowed" ? '<p class="mt-1 text-[.82rem] text-ink-muted">' + reasons + "</p>" : "") +
+        (call.status === "held" && call.held_id ? '<a class="link-btn -ml-1 mt-1 inline-block" target="_blank" rel="noopener" href="/review?id=' + encodeURIComponent(call.held_id) + '">Review this call</a>' : "") +
+      "</div>";
     return li;
   }
 
-  // Held calls park in the hold bay; everything else, including a held call
-  // once a person has decided, goes down the inspection lane in order.
-  const bay = document.getElementById("bay");
-  const bayCount = document.getElementById("bay-count");
-  const emptyBay = document.getElementById("empty-bay");
-
   function refreshBay() {
-    const n = bay.querySelectorAll(".log-item").length;
+    const n = bay.querySelectorAll(".ledger-row").length;
     bayCount.textContent = n + " waiting";
     emptyBay.classList.toggle("hidden", n > 0);
   }
 
   function upsertCall(call) {
     if (!call || !call.id) return;
-    const prev = calls.get(call.id);
-    const merged = Object.assign({}, prev || {}, call);
+    const merged = Object.assign({}, calls.get(call.id) || {}, call);
     calls.set(call.id, merged);
     const el = renderCall(merged);
     const sel = '[data-id="' + CSS.escape(call.id) + '"]';
     const old = log.querySelector(sel) || bay.querySelector(sel);
-    const target = merged.status === "held" ? bay : log;
-    if (old && old.parentNode === target) {
+    const dest = merged.status === "held" ? bay : log;
+    if (old && old.parentNode === dest) {
       old.replaceWith(el);
     } else {
       if (old) old.remove();
-      if (target === log) {
+      if (dest === log) {
         const empty = document.getElementById("empty-log");
         if (empty) empty.remove();
-        // Keep the lane in the order the calls were made.
-        const after = Array.prototype.find.call(log.querySelectorAll(".log-item"), function (li) {
-          const other = calls.get(li.dataset.id);
-          return other && other.ts && merged.ts && other.ts > merged.ts;
+        // Keep the ledger in the order the calls were made.
+        const mine = serials.get(call.id);
+        const after = Array.prototype.find.call(log.querySelectorAll(".ledger-row"), function (li) {
+          return (serials.get(li.dataset.id) || 0) > mine;
         });
         if (after) log.insertBefore(el, after); else log.appendChild(el);
         log.scrollTop = log.scrollHeight;
@@ -210,7 +213,7 @@
   // ---------- Wire up ----------
 
   form.addEventListener("submit", function (e) { e.preventDefault(); send(input.value); });
-  document.querySelectorAll("#suggestions .chip").forEach(function (b) {
+  suggestions.forEach(function (b) {
     b.addEventListener("click", function () { send(b.dataset.task); });
   });
 

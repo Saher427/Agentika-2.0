@@ -1,114 +1,95 @@
 {% extends "base.html" %}
-{% block title %}Reviewer · Agent Firewall{% endblock %}
+{% block title %}Review · Agent Firewall{% endblock %}
 {% block content %}
-<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+<div class="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
   <div>
-    <p class="eyebrow">Reviewer desk</p>
-    <h1 class="page-title mt-1">Held at the checkpoint</h1>
-    <p class="page-lede">These actions are paused because they look risky. Read the evidence, then decide. If nobody decides in time, the action is blocked.</p>
+    <h1 class="page-title">Review held calls</h1>
+    <p class="page-sub">Each call below was stopped before it ran. If nobody decides in time, it is blocked.</p>
   </div>
-  <span id="stream-state" class="flex items-center gap-1.5 font-mono text-xs text-ink-muted"><span class="dot bg-slate-400"></span>Connecting…</span>
+  <span id="stream-state" class="flex items-center gap-1.5 text-[.8rem] text-ink-muted"><span class="dot bg-ink-muted"></span>Connecting…</span>
 </div>
 
-<div class="grid gap-6 lg:grid-cols-3">
+<div class="grid gap-4 lg:grid-cols-[19rem_minmax(0,1fr)]">
   <!-- Queue -->
-  <section class="card self-start lg:col-span-1" aria-labelledby="queue-heading">
-    <div class="card-head">
-      <h2 id="queue-heading" class="card-title">Hold bay</h2>
-      <span id="queue-count" class="rounded-full bg-ink px-2.5 py-0.5 font-mono text-sm font-semibold text-white">0</span>
+  <section class="panel self-start" aria-labelledby="queue-heading">
+    <div class="panel-head">
+      <h2 id="queue-heading" class="panel-title">Waiting</h2>
+      <span id="queue-count" class="font-mono text-[.85rem] font-semibold text-ink-2">0</span>
     </div>
     <ul id="queue" class="divide-y divide-rule" aria-live="polite"></ul>
-    <div id="queue-empty" class="px-5 py-10 text-center">
-      <span class="stamp stamp-cleared text-sm">All clear</span>
-      <p class="mt-3 text-ink-muted">Nothing is waiting. The agent is working without holds.</p>
-    </div>
+    <p id="queue-empty" class="px-4 py-6 text-[.92rem] text-ink-muted">Nothing is waiting. New held calls appear here on their own.</p>
 
-    <div class="border-t border-rule px-5 py-4">
-      <h3 class="eyebrow">Decided this session</h3>
-      <ul id="history" class="mt-2.5 space-y-2 text-sm">
-        <li class="text-ink-muted" id="history-empty">No decisions yet.</li>
+    <div class="border-t border-rule px-4 py-3">
+      <h3 class="label">Decided this session</h3>
+      <ul id="history" class="mt-2 space-y-1.5 text-[.88rem]">
+        <li class="text-ink-muted" id="history-empty">None yet.</li>
       </ul>
     </div>
   </section>
 
-  <!-- Evidence card -->
-  <section class="lg:col-span-2" aria-labelledby="evidence-heading">
-    <h2 id="evidence-heading" class="sr-only">Evidence</h2>
-    <div id="evidence-placeholder" class="card flex min-h-[22rem] flex-col items-center justify-center gap-2 p-8 text-center text-ink-muted">
-      <svg class="h-10 w-10 text-rule" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/></svg>
-      <p>Pick a held action on the left to inspect it.</p>
+  <!-- Case file -->
+  <section aria-labelledby="evidence-heading">
+    <h2 id="evidence-heading" class="sr-only">Case file</h2>
+    <div id="evidence-placeholder" class="panel flex min-h-[20rem] items-center justify-center p-8 text-center text-ink-muted">
+      Select a call on the left to see why it was held.
     </div>
 
-    <article id="evidence" class="card hidden overflow-hidden" aria-live="polite">
-      <!-- Verdict band: risk and the one-line story -->
-      <header id="ev-header" class="px-6 py-5">
-        <div class="flex items-start justify-between gap-5">
-          <div class="min-w-0 flex-1">
-            <p id="ev-level-label" class="eyebrow !text-current opacity-85"></p>
-            <p class="display mt-1.5 text-[1.45rem] leading-snug" id="ev-headline"></p>
-          </div>
-          <div class="shrink-0 text-right">
-            <p class="eyebrow !text-current opacity-85">Risk</p>
-            <p class="display text-[3.2rem] leading-none tabular-nums" id="ev-risk"></p>
-          </div>
+    <article id="evidence" class="panel hidden" aria-live="polite">
+      <header id="ev-header" class="grid gap-5 border-b border-rule px-5 pb-4 pt-4 sm:grid-cols-[minmax(0,1fr)_11rem]">
+        <div class="min-w-0">
+          <p id="ev-level-label" class="tag tag-stop"></p>
+          <p class="mt-2 text-[1.28rem] font-semibold leading-snug tracking-[-0.01em]" id="ev-headline"></p>
         </div>
-        <div class="mt-4" aria-hidden="true">
-          <div class="meter"><div id="ev-meter-fill" class="meter-fill" style="width:0"></div><span class="meter-tick" style="left:30%"></span><span class="meter-tick" style="left:70%"></span></div>
-          <div class="relative mt-1 h-4 font-mono text-[.66rem] uppercase tracking-wider opacity-80">
-            <span class="absolute left-0">0 · cleared</span>
-            <span class="absolute" style="left:30%">30 · held</span>
-            <span class="absolute" style="left:70%">70 · high</span>
-            <span class="absolute right-0">100</span>
+        <div class="sm:text-right">
+          <p class="label">Risk score</p>
+          <p class="risk-num" id="ev-risk"></p>
+          <div class="meter mt-2" aria-hidden="true">
+            <div id="ev-meter-fill" class="meter-fill bg-stop" style="width:0"></div>
+            <span class="meter-tick" style="left:30%" title="30: held"></span>
+            <span class="meter-tick" style="left:70%" title="70: high"></span>
           </div>
+          <p class="mt-1 whitespace-nowrap font-mono text-[.7rem] text-ink-muted">30 held · 70 high</p>
         </div>
       </header>
 
-      <!-- The evidence chain: task → what it read → what it wants → findings -->
-      <div class="chain space-y-7 px-6 py-7">
-        <div class="chain-step">
-          <span class="ev-num">1</span>
-          <h3 class="ev-step">The user asked for</h3>
-          <p id="ev-task" class="mt-2 rounded-lg border border-cleared/30 bg-cleared-soft px-4 py-3 text-[1.1rem] font-medium"></p>
-        </div>
+      <ol class="space-y-6 px-5 py-5">
+        <li>
+          <h3 class="flex items-baseline gap-2 text-[.95rem] font-semibold"><span class="step-num">1</span>The user asked for</h3>
+          <p id="ev-task" class="mt-1.5 border-l-2 border-ok pl-3 text-[1.08rem] text-ink"></p>
+        </li>
 
-        <div class="chain-step">
-          <span class="ev-num">2</span>
-          <h3 class="ev-step">The agent read <span class="normal-case tracking-normal font-sans font-normal text-ink-muted">(untrusted sources marked)</span></h3>
-          <ul id="ev-sources" class="mt-2 space-y-3"></ul>
-        </div>
+        <li>
+          <h3 class="flex items-baseline gap-2 text-[.95rem] font-semibold"><span class="step-num">2</span>The agent read</h3>
+          <ul id="ev-sources" class="mt-2 space-y-2.5"></ul>
+        </li>
 
-        <div class="chain-step">
-          <span class="ev-num">3</span>
-          <h3 class="ev-step">Now it wants to</h3>
-          <div class="mt-2 rounded-lg bg-ink px-4 py-3.5 font-mono text-sm text-slate-100 shadow-inner">
-            <p><span class="font-semibold text-[#8FD8FF]" id="ev-tool"></span><span class="text-slate-400">(</span></p>
+        <li>
+          <h3 class="flex items-baseline gap-2 text-[.95rem] font-semibold"><span class="step-num">3</span>Now it wants to run</h3>
+          <div class="call-box mt-2">
+            <p><span class="font-semibold text-white" id="ev-tool"></span><span class="text-[#8C929B]">(</span></p>
             <dl id="ev-args" class="ml-5 space-y-1"></dl>
-            <p class="text-slate-400">)</p>
+            <p class="text-[#8C929B]">)</p>
           </div>
-        </div>
+        </li>
 
-        <div class="chain-step">
-          <span class="ev-num">4</span>
-          <h3 class="ev-step">The checkpoint found</h3>
-          <ul id="ev-reasons" class="mt-2 space-y-1.5"></ul>
-          <p id="ev-partial" class="mt-2 hidden text-sm text-hold-ink">The intent check was unavailable, so this score uses policy and taint only.</p>
-        </div>
-      </div>
+        <li>
+          <h3 class="flex items-baseline gap-2 text-[.95rem] font-semibold"><span class="step-num">4</span>Why it was held</h3>
+          <ul id="ev-reasons" class="mt-2 space-y-1 text-[.95rem] text-ink-2"></ul>
+          <p id="ev-partial" class="mt-2 hidden text-[.88rem] text-hold">The intent check was unavailable, so this score uses the policy and taint checks only.</p>
+        </li>
+      </ol>
 
-      <!-- Decision -->
-      <footer class="border-t border-rule bg-paper/70 px-6 py-5">
-        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p class="display text-lg">Your call</p>
-          <p class="text-sm text-ink-muted">Blocked automatically in <span id="ev-timer" class="font-mono text-base font-semibold tabular-nums text-ink">—</span></p>
+      <footer class="rounded-b-panel border-t border-rule bg-well/60 px-5 py-4">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-3" id="ev-actions">
+          <button type="button" class="btn btn-stop" data-decision="block">Block <span class="kbd" aria-hidden="true">B</span></button>
+          <button type="button" class="btn btn-quiet" data-decision="allow_once">Allow once</button>
+          <span class="text-[.85rem] text-ink-muted">or</span>
+          <button type="button" class="link-btn" data-decision="always_block" id="btn-always-block">Always block</button>
+          <button type="button" class="link-btn" data-decision="always_allow" id="btn-always-allow">Always allow</button>
+          <p class="ml-auto text-[.88rem] text-ink-muted">Blocked automatically in <span id="ev-timer" class="font-mono text-[.95rem] font-semibold text-ink">—</span></p>
         </div>
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4" id="ev-actions">
-          <button type="button" class="btn btn-danger" data-decision="block">Block <span class="kbd" aria-hidden="true">B</span></button>
-          <button type="button" class="btn btn-danger-outline" data-decision="always_block" id="btn-always-block">Always block</button>
-          <button type="button" class="btn btn-secondary" data-decision="allow_once">Allow once</button>
-          <button type="button" class="btn btn-secondary-outline" data-decision="always_allow" id="btn-always-allow">Always allow</button>
-        </div>
-        <p id="ev-pattern" class="mt-3 text-xs text-ink-muted"></p>
-        <div id="ev-result" class="mt-4 hidden items-center gap-4" role="status"></div>
+        <p id="ev-pattern" class="mt-2.5 text-[.8rem] text-ink-muted"></p>
+        <div id="ev-result" class="mt-3 hidden" role="status"></div>
       </footer>
     </article>
   </section>

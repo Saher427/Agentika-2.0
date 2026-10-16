@@ -1,26 +1,26 @@
-<section id="solution" data-transition="fade" style="background:#EEF1F4;color:#14213D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<section id="solution" data-transition="fade" style="background:#F1F2EE;color:#1C1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
 <div style="display:flex;flex-direction:column;gap:16px">
-<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:5px;text-transform:uppercase;color:#0E7C66">The solution</p>
-<h2 style="font-family:'Archivo', Arial, sans-serif;font-size:72px;font-weight:800;line-height:1.08;letter-spacing:-1px">A checkpoint between the agent and its tools.</h2>
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#2D57B5">The solution</p>
+<h2 style="font-family:'IBM Plex Sans', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.08;letter-spacing:-1.5px">A checkpoint between the agent and its tools.</h2>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px">
-<div style="display:flex;flex-direction:column;gap:20px;background:#FBFCFD;border:2px solid #C9D2DC;border-radius:20px;padding:44px">
-<p style="font-family:'Archivo', Arial, sans-serif;font-size:28px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#0E7C66;background:#E1F1EC;border:4px double #0E7C66;border-radius:6px;padding:6px 16px;transform:rotate(-3deg);width:220px;text-align:center">Cleared</p>
-<h3 style="font-family:'Archivo', Arial, sans-serif;font-size:44px;font-weight:800;line-height:1.1">Safe calls pass at once</h3>
-<p style="font-size:28px;line-height:1.4;color:#3A4865">Reading email and looking up invoices never wait. The agent stays fast.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-top:4px solid #2F6B4F;padding:28px 0px 0px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:28px;font-weight:600;color:#2F6B4F">✓ allowed</p>
+<h3 style="font-family:'IBM Plex Sans', Arial, sans-serif;font-size:44px;font-weight:600;line-height:1.12">Safe calls run at once</h3>
+<p style="font-size:28px;line-height:1.4;color:#3B4048">Reading email and looking up invoices never wait. The agent stays fast.</p>
 </div>
-<div style="display:flex;flex-direction:column;gap:20px;background:#FBFCFD;border:2px solid #C9D2DC;border-radius:20px;padding:44px">
-<p style="font-family:'Archivo', Arial, sans-serif;font-size:28px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#7A4A00;background:#FBF0DC;border:4px double #B86E00;border-radius:6px;padding:6px 16px;transform:rotate(-3deg);width:180px;text-align:center">Held</p>
-<h3 style="font-family:'Archivo', Arial, sans-serif;font-size:44px;font-weight:800;line-height:1.1">Risky calls wait for a person</h3>
-<p style="font-size:28px;line-height:1.4;color:#3A4865">The reviewer sees the task, the hidden sentence and the action, then decides.</p>
+<div style="display:flex;flex-direction:column;gap:16px;border-top:4px solid #9E560E;padding:28px 0px 0px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:28px;font-weight:600;color:#9E560E">◼ held</p>
+<h3 style="font-family:'IBM Plex Sans', Arial, sans-serif;font-size:44px;font-weight:600;line-height:1.12">Risky calls wait for a person</h3>
+<p style="font-size:28px;line-height:1.4;color:#3B4048">The reviewer sees the task, the hidden sentence and the call, then decides.</p>
 </div>
-<div style="display:flex;flex-direction:column;gap:20px;background:#FBFCFD;border:2px solid #C9D2DC;border-radius:20px;padding:44px">
-<p style="font-family:'Archivo', Arial, sans-serif;font-size:28px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#6D28D9;background:#EEE8FD;border:4px double #6D28D9;border-radius:6px;padding:6px 16px;transform:rotate(-3deg);width:220px;text-align:center">Learned</p>
-<h3 style="font-family:'Archivo', Arial, sans-serif;font-size:44px;font-weight:800;line-height:1.1">Decisions become rules</h3>
-<p style="font-size:28px;line-height:1.4;color:#3A4865">"Always allow" and "Always block" mean fewer reviews over time.</p>
+<div style="display:flex;flex-direction:column;gap:16px;border-top:4px solid #2D57B5;padding:28px 0px 0px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:28px;font-weight:600;color:#2D57B5">+ rule saved</p>
+<h3 style="font-family:'IBM Plex Sans', Arial, sans-serif;font-size:44px;font-weight:600;line-height:1.12">Decisions become rules</h3>
+<p style="font-size:28px;line-height:1.4;color:#3B4048">“Always allow” and “Always block” mean fewer reviews over time.</p>
 </div>
 </div>
-<p style="font-size:32px;line-height:1.4;color:#14213D"><b>Fail-safe:</b> if nobody decides within 2 minutes, a held call is <span style="color:#C8102E"><b>blocked</b></span>, never allowed.</p>
-<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#55637D">03 / 08</p>
+<p style="font-size:32px;line-height:1.4;color:#1C1F24"><b>Fail-safe:</b> if nobody decides within 2 minutes, a held call is <span style="color:#B42318"><b>blocked</b></span>, never allowed.</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#666C74">03 / 08</p>
 <aside>Instead of building another agent, we built the guard every agent needs. It sits at the tool boundary, where the damage happens, so even a fully fooled model cannot act without passing the check.</aside>
 </section>

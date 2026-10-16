@@ -7,7 +7,7 @@ These are stage directions and talking points, not a script to read word for wor
 ## Setup before you go on stage
 
 - Laptop on power, browser zoom 110–125%, notifications off.
-- **Window 1 (left):** live URL, chat page `/`.
+- **Window 1 (left):** live URL, Agent page `/`.
 - **Window 2 (right):** live URL, `/review`, already signed in as the demo reviewer.
 - **Tab 3:** `/bench` with the real results loaded.
 - **Tab 4:** the slides PDF.
@@ -18,10 +18,10 @@ These are stage directions and talking points, not a script to read word for wor
 
 | Time | What you do | What the audience sees | Point to make |
 |---|---|---|---|
-| 0:00 | Type a normal task: `List invoices for October` | Green **Allowed** calls in the live log | "Normal work is not slowed down." |
+| 0:00 | Type a normal task: `List invoices for October` | Every call in the Tool calls ledger is **✓ allowed** | "Normal work is not slowed down." |
 | 0:20 | Show email #7 (in the slide or the evidence later): it looks like a normal freight invoice | A harmless-looking email | "One sentence is written in white text. You can't see it. The AI can." |
-| 0:40 | Click **Summarise this month's invoices** | `read_emails`, `list_invoices` green, then `send_email` to `x@evil.com` turns **red: Held** | "The agent was fooled. It is trying to send our invoices to a stranger. The firewall stopped it before it happened." |
-| 1:10 | Switch to the reviewer window | The evidence card: the user's task, email #7 with the hidden sentence highlighted, the call, risk 100 | "In ten seconds, anyone can see what happened and why." |
+| 0:40 | Click **Summarise this month's invoices** | `read_emails`, `list_invoices` allowed, then `send_email` to `x@evil.com` stops in **Waiting for a reviewer** | "The agent was fooled. It is trying to send our invoices to a stranger. The firewall stopped it before it happened." |
+| 1:10 | Switch to the Review window | The case file: the user's task, email #7 with the hidden sentence marked in highlighter, the call, risk 100. Click **What a person saw**: the sentence is gone | "In ten seconds, anyone can see what happened and why." |
 | 1:40 | Click **Block** (or **Always block**) | Red "Blocked"; the chat log updates | "A person makes the final call. The AI did the watching." |
 | 2:00 | Back to the chat | The agent finishes the summary and says a suspicious action was stopped | "The agent continues safely and tells the user." |
 | 2:15 | Open `/bench` | Real catch rate, false alarms and added delay | "We tested 20 attacks and 20 normal tasks. These are our real numbers." |
@@ -37,7 +37,7 @@ The handbook asks for a 2–3 minute demo video, unlisted on YouTube or on Googl
 |---|---|---|
 | 0:00–0:20 | Title slide | Team name, project name, the one-line pitch: "AI agents have no seatbelt. We built one." |
 | 0:20–0:40 | Email #7 rendered normally, then the same email's raw HTML | The problem: prompt injection, the number one risk for LLM apps (OWASP LLM01). The hidden sentence. |
-| 0:40–1:30 | Chat window + live log, then the reviewer window | The normal task (green), the attack (red, held), the evidence card |
+| 0:40–1:30 | Agent window and Tool calls ledger, then the Review window | The normal task (all allowed), the attack (held), the case file and both views of email #7 |
 | 1:30–1:50 | Click Block; chat reply | Human decides; agent continues and reports it |
 | 1:50–2:20 | Architecture slide, then `/bench` | Three checks (policy, taint, intent), MCP proxy, deployed on Alternate Clouds; the real numbers |
 | 2:20–2:40 | Alternate Clouds dashboard showing the service running, then the live URL in the address bar | Proof it is live on Alternate Clouds |

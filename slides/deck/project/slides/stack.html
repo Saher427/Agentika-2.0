@@ -1,10 +1,10 @@
-<section id="stack" data-transition="fade" style="background:#14213D;color:#EEF1F4;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<section id="stack" data-transition="fade" style="background:#F1F2EE;color:#1C1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
 <div style="display:flex;flex-direction:column;gap:16px">
-<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:5px;text-transform:uppercase;color:#9FE7D4">How we built it</p>
-<h2 style="font-family:'Archivo', Arial, sans-serif;font-size:72px;font-weight:800;line-height:1.08;letter-spacing:-1px;color:#FBFCFD">Open tools, deployed live.</h2>
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#2D57B5">How we built it</p>
+<h2 style="font-family:'IBM Plex Sans', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.08;letter-spacing:-1.5px">Open tools, deployed live.</h2>
 </div>
-<table style="font-size:30px;color:#EEF1F4">
-<tr><th style="width:30%;text-align:left;color:#9FE7D4">Layer</th><th style="width:70%;text-align:left;color:#9FE7D4">What we used</th></tr>
+<table style="font-size:30px;color:#1C1F24">
+<tr><th style="width:30%;text-align:left;color:#666C74">Layer</th><th style="width:70%;text-align:left;color:#666C74">What we used</th></tr>
 <tr><td>Agent</td><td>Groq · llama-3.3-70b-versatile with tool calling</td></tr>
 <tr><td>Intent check</td><td>Groq · llama-3.1-8b-instant, answers in under a second</td></tr>
 <tr><td>Tools and proxy</td><td>MCP Python SDK: a tool server and the firewall proxy</td></tr>
@@ -12,7 +12,7 @@
 <tr><td>Dashboard</td><td>Jinja2 · Tailwind CSS · live updates over Server-Sent Events</td></tr>
 <tr><td>Deployment</td><td>Docker container on Alternate Clouds</td></tr>
 </table>
-<p style="position:absolute;left:128px;bottom:64px;width:1400px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#8A97AF">API keys live only in Alternate Clouds variables, never in the code</p>
-<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#8A97AF">06 / 08</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1400px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#666C74">API keys live only in Alternate Clouds variables, never in the code</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#666C74">06 / 08</p>
 <aside>Member 2 speaks here. Keep it to the architecture: the agent never talks to the tools directly; every call goes through the proxy. Mention the n8n alert only if it was built.</aside>
 </section>

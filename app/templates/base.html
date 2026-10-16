@@ -4,54 +4,55 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Agent Firewall{% endblock %}</title>
-  <meta name="description" content="Agent Firewall: a prompt-injection firewall that puts a human in charge of every dangerous AI agent action.">
-  <meta name="theme-color" content="#14213D">
+  <meta name="description" content="Agent Firewall checks every action an AI agent takes and holds risky ones for a person to approve.">
+  <meta property="og:title" content="Agent Firewall">
+  <meta property="og:description" content="Checks every action an AI agent takes and holds risky ones for a person to approve.">
+  <meta name="theme-color" content="#1C1F24">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="/static/fonts/archivo-wdth.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/static/css/app.css">
 </head>
 <body class="min-h-screen antialiased">
-  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
-  <header class="site-header z-30 sm:sticky sm:top-0">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-      <a href="/" class="flex items-center gap-2.5">
-        <svg class="h-8 w-8" viewBox="0 0 32 32" aria-hidden="true">
-          <path d="M16 3l11 4v8.5c0 6.6-4.7 12.1-11 13.5C9.7 27.6 5 22.1 5 15.5V7l11-4z" fill="#14213D" stroke="#D9CCFF" stroke-width="1.6"/>
-          <path d="M10.5 16.2l3.6 3.6 7.4-7.6" fill="none" stroke="#3CCFAE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
+  <header class="topbar">
+    <div class="mx-auto flex max-w-[1360px] flex-wrap items-center gap-x-5 px-4">
+      <a href="/" class="flex items-center gap-2.5 py-2.5" aria-label="Agent Firewall, home">
+        <!-- Mark: a toll-gate barrier, down. -->
+        <svg class="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="2.5" y="4" width="4" height="16" rx="1" fill="#E9EBE6"/>
+          <path d="M6.5 9.5h15" stroke="#E9EBE6" stroke-width="3" stroke-linecap="round"/>
+          <path d="M10 9.5h2.6M15.2 9.5h2.6" stroke="#B42318" stroke-width="3"/>
+          <rect x="1.5" y="19" width="6" height="2" rx=".5" fill="#8C929B"/>
         </svg>
-        <span class="leading-none">
-          <span class="display block text-[1.2rem] tracking-tight">Agent Firewall</span>
-          <span class="mt-0.5 block font-mono text-[.66rem] uppercase tracking-[.18em] text-slate-400">checkpoint for AI agents</span>
-        </span>
+        <span class="text-[1.02rem] font-semibold tracking-[-0.01em] text-white">Agent Firewall</span>
       </a>
-      <nav class="order-3 flex w-full items-center gap-1 overflow-x-auto text-sm sm:order-none sm:w-auto sm:flex-1" aria-label="Main">
-        <a href="/" class="nav-link {% if active == 'chat' %}nav-link-active{% endif %}" {% if active == 'chat' %}aria-current="page"{% endif %}>Agent chat</a>
+      <nav class="order-3 -mb-px flex w-full items-center overflow-x-auto overflow-y-hidden sm:order-none sm:w-auto sm:flex-1" aria-label="Main">
+        <a href="/" class="nav-link {% if active == 'chat' %}nav-link-active{% endif %}" {% if active == 'chat' %}aria-current="page"{% endif %}>Agent</a>
         <a href="/review" class="nav-link {% if active == 'review' %}nav-link-active{% endif %}" {% if active == 'review' %}aria-current="page"{% endif %}>
-          Reviewer
-          <span id="nav-held-count" class="ml-1 hidden rounded-full bg-seized px-2 py-0.5 font-mono text-xs font-bold text-white">0</span>
+          Review
+          <span id="nav-held-count" class="ml-1 hidden rounded-tag bg-stop px-1.5 py-px font-mono text-[.72rem] font-semibold text-white">0</span>
         </a>
         <a href="/bench" class="nav-link {% if active == 'bench' %}nav-link-active{% endif %}" {% if active == 'bench' %}aria-current="page"{% endif %}>Benchmark</a>
       </nav>
-      <div class="ml-auto flex items-center gap-3 text-xs sm:ml-0">
-        <span class="rounded-full border border-hold/60 bg-hold/15 px-2.5 py-1 font-semibold text-[#F6C77A]" title="Every email, invoice, person and record in this demo is made up.">Demo data only</span>
+      <div class="ml-auto flex items-center gap-3 py-2 text-[.8rem] sm:ml-0">
+        <span class="text-[#B9BEC6]" title="Every email, invoice, person and record in this demo is made up.">Demo data</span>
         <span id="nav-user" class="hidden items-center gap-2">
-          <span id="nav-user-name" class="hidden text-slate-300 md:inline"></span>
-          <button id="nav-logout" type="button" class="rounded-md border border-white/25 px-2.5 py-1 text-slate-100 hover:bg-white/10">Sign out</button>
+          <span id="nav-user-name" class="hidden text-[#B9BEC6] md:inline"></span>
+          <button id="nav-logout" type="button" class="rounded-tag border border-white/25 px-2 py-0.5 text-[#E9EBE6] transition-colors hover:bg-white/10">Sign out</button>
         </span>
       </div>
     </div>
-    <div class="security-thread" aria-hidden="true"></div>
   </header>
 
-  <main id="main" class="mx-auto max-w-7xl px-4 py-7">
+  <main id="main" class="mx-auto max-w-[1360px] px-4 pb-10 pt-5">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="mx-auto flex max-w-7xl flex-wrap gap-x-4 gap-y-1 px-4 pb-8 pt-2 font-mono text-[.7rem] uppercase tracking-[.12em] text-ink-muted">
-    <span>Agent Firewall</span><span aria-hidden="true">·</span><span>Agentika 2.0 · NaSCon 2026</span><span aria-hidden="true">·</span><span>Human + AI: Better Together</span><span aria-hidden="true">·</span><span>Deployed on Alternate Clouds</span>
+  <footer class="mx-auto max-w-[1360px] px-4 pb-6 text-[.8rem] text-ink-muted">
+    Agent Firewall · Agentika 2.0, NaSCon 2026 · Running on Alternate Clouds
   </footer>
 
-  <div id="toast" role="status" aria-live="polite" class="pointer-events-none fixed bottom-4 right-4 z-50 hidden max-w-sm rounded-lg bg-ink px-4 py-3 text-sm text-white shadow-lg"></div>
+  <div id="toast" role="status" aria-live="polite" class="pointer-events-none fixed bottom-4 right-4 z-50 hidden max-w-sm rounded-box bg-ink px-4 py-3 text-sm text-white"></div>
 
   <script src="/static/js/common.js"></script>
   {% block scripts %}{% endblock %}

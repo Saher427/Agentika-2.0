@@ -1,27 +1,32 @@
 /** Tailwind CSS v3 config for the Agent Firewall pages.
  *
- * Design: a checkpoint for AI agents. Security-document paper, navy ink,
- * rubber-stamp verdicts, and a UV-lamp view that reveals hidden instructions.
+ * Design: an operator's desk tool, not a landing page. Neutral ink on a
+ * cool paper ground, one blue accent for things you can act on, and amber /
+ * red only where a call is held or blocked. Evidence is marked up the way a
+ * person would do it on paper: with a highlighter.
  */
 module.exports = {
   content: ["./app/templates/**/*.html", "./app/static/js/**/*.js"],
   theme: {
     extend: {
       colors: {
-        paper: "#EEF1F4",      // security paper
-        card: "#FBFCFD",
-        rule: "#C9D2DC",
-        ink: { DEFAULT: "#14213D", 2: "#2A3A5C", muted: "#55637D" },
-        cleared: { DEFAULT: "#0E7C66", soft: "#E1F1EC" },
-        hold: { DEFAULT: "#B86E00", ink: "#7A4A00", soft: "#FBF0DC" },
-        seized: { DEFAULT: "#C8102E", soft: "#FBE7EA" },
-        uv: { DEFAULT: "#6D28D9", deep: "#160A2C", mid: "#2A1652", glow: "#D9CCFF", soft: "#EEE8FD" },
+        paper: "#F1F2EE",
+        panel: "#FBFBF9",
+        well: "#E8EAE4",
+        rule: { DEFAULT: "#D6D9D2", strong: "#B9BDB4" },
+        ink: { DEFAULT: "#1C1F24", 2: "#3B4048", muted: "#666C74" },
+        accent: { DEFAULT: "#2D57B5", soft: "#E3E9F6" },
+        ok: { DEFAULT: "#2F6B4F", soft: "#E4EEE8" },
+        hold: { DEFAULT: "#9E560E", soft: "#F8EBD9", line: "#D99A4E" },
+        stop: { DEFAULT: "#B42318", soft: "#F9E6E3", line: "#E0857C" },
+        marker: "#FFE27A",
       },
       fontFamily: {
-        display: ["Archivo", "Arial Narrow", "system-ui", "sans-serif"],
         sans: ["IBM Plex Sans", "Segoe UI", "system-ui", "sans-serif"],
         mono: ["IBM Plex Mono", "Cascadia Code", "Consolas", "monospace"],
+        num: ["Archivo", "IBM Plex Sans", "system-ui", "sans-serif"],
       },
+      borderRadius: { tag: "3px", box: "6px", panel: "8px" },
     },
   },
   plugins: [],

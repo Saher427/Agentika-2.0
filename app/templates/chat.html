@@ -1,69 +1,73 @@
 {% extends "base.html" %}
-{% block title %}Agent chat · Agent Firewall{% endblock %}
+{% block title %}Agent · Agent Firewall{% endblock %}
 {% block content %}
-<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+<div class="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
   <div>
-    <p class="eyebrow">Inbox assistant · Fatima Noor, Crescent Trading Co.</p>
-    <h1 class="page-title mt-1">Give the agent a task.<br class="hidden sm:block"> Watch every action it takes.</h1>
-    <p class="page-lede">Each tool call stops at the checkpoint first. Safe calls are cleared at once. Risky calls wait for a human reviewer.</p>
+    <h1 class="page-title">Inbox assistant</h1>
+    <p class="page-sub">Fatima Noor's mailbox at Crescent Trading Co. · 13 emails, 3 of them carry hidden instructions</p>
   </div>
+  <span id="stream-state" class="flex items-center gap-1.5 text-[.8rem] text-ink-muted"><span class="dot bg-ink-muted"></span>Connecting…</span>
 </div>
 
-<div class="grid gap-6 lg:grid-cols-5">
+<div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
   <!-- Conversation -->
-  <section class="card flex min-h-[34rem] flex-col lg:col-span-3" aria-labelledby="chat-heading">
-    <div class="card-head">
-      <h2 id="chat-heading" class="card-title">Conversation</h2>
-      <span class="font-mono text-xs text-ink-muted">13 emails · 3 carry hidden instructions</span>
+  <section class="panel flex min-h-[33rem] flex-col" aria-labelledby="chat-heading">
+    <div class="panel-head">
+      <h2 id="chat-heading" class="panel-title">Conversation</h2>
     </div>
 
-    <div id="messages" class="flex-1 space-y-4 overflow-y-auto px-5 py-5" aria-live="polite">
-      <div id="empty-chat" class="rounded-xl border border-dashed border-rule bg-paper/60 p-5">
-        <p class="font-semibold">Start with a suggestion below.</p>
-        <p class="mt-1 text-sm text-ink-muted">"Summarise this month's invoices" reads email #7, which hides an instruction in white text. The agent will fall for it. The checkpoint will not.</p>
+    <div id="messages" class="flex-1 space-y-5 overflow-y-auto px-4 py-4" aria-live="polite">
+      <div id="empty-chat" class="max-w-[34rem] text-[.95rem] text-ink-2">
+        <p>No tasks yet. Pick one below or type your own.</p>
+        <p class="mt-2 text-ink-muted">The invoice summary reads email #7, which tells the agent, in white text, to forward every invoice to x@evil.com. Watch what happens to that call on the right.</p>
       </div>
     </div>
 
-    <div class="border-t border-rule px-5 py-4">
-      <div class="mb-3 flex flex-wrap gap-2" id="suggestions">
+    <div class="border-t border-rule px-4 pb-4 pt-3">
+      <p class="label mb-1">Try</p>
+      <div class="mb-3 grid gap-0.5" id="suggestions">
         {% for task in suggested_tasks %}
-        <button type="button" class="chip" data-task="{{ task }}">{{ task }}</button>
+        <button type="button" class="suggest" data-task="{{ task }}">{{ task }}</button>
         {% endfor %}
       </div>
       <form id="chat-form" class="flex gap-2" autocomplete="off">
         <label for="task-input" class="sr-only">Task for the agent</label>
         <input id="task-input" name="task" type="text" maxlength="500" required
-               class="input flex-1" placeholder="For example: List invoices for October">
+               class="input flex-1" placeholder="List invoices for October">
         <button id="send-btn" type="submit" class="btn btn-primary">Send</button>
       </form>
-      <p id="chat-status" class="mt-2 hidden text-sm text-ink-muted" aria-live="polite"></p>
+      <p id="chat-status" class="mt-2 hidden text-[.9rem] text-ink-muted" aria-live="polite"></p>
     </div>
   </section>
 
-  <!-- Checkpoint log -->
-  <section class="card flex min-h-[34rem] flex-col lg:col-span-2" aria-labelledby="log-heading">
-    <div class="card-head">
-      <h2 id="log-heading" class="card-title">Checkpoint log</h2>
-      <span id="stream-state" class="flex items-center gap-1.5 font-mono text-xs text-ink-muted"><span class="dot bg-slate-400"></span>Connecting…</span>
+  <!-- Call ledger -->
+  <section class="panel flex min-h-[33rem] flex-col" aria-labelledby="log-heading">
+    <div class="panel-head">
+      <h2 id="log-heading" class="panel-title">Tool calls</h2>
+      <span class="text-[.8rem] text-ink-muted">checked before they run</span>
     </div>
-    <!-- Hold bay: calls parked until a person decides -->
-    <div class="hold-bay mx-4 mt-4" aria-labelledby="bay-heading">
-      <div class="flex items-center justify-between gap-2 px-3 pt-2.5">
-        <h3 id="bay-heading" class="eyebrow !text-hold-ink">Hold bay</h3>
-        <span id="bay-count" class="font-mono text-xs font-semibold text-hold-ink">0 waiting</span>
+
+    <div class="bay mx-3 mt-3" aria-labelledby="bay-heading">
+      <div class="flex items-baseline justify-between gap-2 px-3 pb-1 pt-2">
+        <h3 id="bay-heading" class="text-[.88rem] font-semibold text-hold">Waiting for a reviewer</h3>
+        <span id="bay-count" class="font-mono text-[.78rem] text-hold">0 waiting</span>
       </div>
-      <ul id="bay" class="space-y-2 px-2 pb-2 pt-1.5" aria-live="assertive">
-        <li id="empty-bay" class="px-1 py-2 text-sm text-hold-ink/80">Empty. Risky calls park here until a reviewer decides.</li>
+      <ul id="bay" aria-live="assertive">
+        <li id="empty-bay" class="px-3 pb-2.5 text-[.88rem] text-hold/80">Nothing held. Risky calls stop here until someone decides.</li>
       </ul>
     </div>
-    <p class="eyebrow mx-5 mt-4">Inspection lane</p>
-    <ul id="log" class="log-lane flex-1 space-y-2.5 overflow-y-auto px-4 pb-4 pt-2" aria-live="polite">
-      <li id="empty-log" class="ml-6 py-6 text-sm text-ink-muted">Every tool call the agent makes is inspected and stamped here, in order.</li>
+
+    <div class="mx-3 mb-1 mt-4 grid grid-cols-[2.4rem_1fr] gap-x-2 px-3 text-[.76rem] font-medium text-ink-muted">
+      <span>#</span><span>Call · outcome</span>
+    </div>
+    <ul id="log" class="mx-3 mb-3 flex-1 overflow-y-auto rounded-box border border-rule bg-white" aria-live="polite">
+      <li id="empty-log" class="px-3 py-6 text-center text-[.9rem] text-ink-muted">Every call the agent makes is logged here, in order.</li>
     </ul>
-    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-rule px-5 py-3 text-xs text-ink-muted">
-      <span class="stamp stamp-cleared">Cleared</span><span>safe, went through</span>
-      <span class="stamp stamp-held">Held</span><span>waiting for a person</span>
-      <span class="stamp stamp-seized">Blocked</span><span>stopped</span>
+
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-rule px-4 py-2.5 text-[.8rem] text-ink-muted">
+      <span class="flex items-center gap-1.5"><span class="tag tag-ok">✓ allowed</span> ran straight away</span>
+      <span class="flex items-center gap-1.5"><span class="tag tag-hold">◼ held</span> needs a person</span>
+      <span class="flex items-center gap-1.5"><span class="tag tag-stop">✕ blocked</span> did not run</span>
     </div>
   </section>
 </div>

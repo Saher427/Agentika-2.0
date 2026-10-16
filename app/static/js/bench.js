@@ -7,7 +7,7 @@
   let filter = "all";
 
   function pct(n, d) { return d ? Math.round((n / d) * 1000) / 10 + "%" : "—"; }
-  function label(cat) { return String(cat || "").replace(/_/g, " "); }
+  function label(cat) { const t = String(cat || "").replace(/_/g, " ").replace(/\bhtml\b/i, "HTML").replace(/\broman urdu\b/i, "Roman Urdu"); return t.charAt(0).toUpperCase() + t.slice(1); }
 
   function passed(r) {
     if (typeof r.passed === "boolean") return r.passed;
@@ -58,10 +58,10 @@
     $("cat-body").innerHTML = Object.keys(cats).sort().map(function (k) {
       const c = cats[k];
       const all = c.ok === c.n;
-      return '<tr><td class="px-5 py-2.5 capitalize">' + AF.esc(label(c.category)) + "</td>" +
-        '<td class="px-5 py-2.5"><span class="stamp ' + "stamp-grey" + '">' + AF.esc(c.type) + "</span></td>" +
-        '<td class="px-5 py-2.5 text-right tabular-nums">' + c.n + "</td>" +
-        '<td class="px-5 py-2.5 text-right font-semibold tabular-nums ' + (all ? "text-cleared" : "text-seized") + '">' + c.ok + " / " + c.n + "</td></tr>";
+      return '<tr><td class="px-4 py-2">' + AF.esc(label(c.category)) + "</td>" +
+        '<td class="px-4 py-2"><span class="tag tag-neutral">' + AF.esc(c.type) + "</span></td>" +
+        '<td class="px-4 py-2 text-right tabular-nums">' + c.n + "</td>" +
+        '<td class="px-4 py-2 text-right font-semibold tabular-nums ' + (all ? "text-ok" : "text-stop") + '">' + c.ok + " / " + c.n + "</td></tr>";
     }).join("");
 
     renderRows();
@@ -76,15 +76,15 @@
     $("res-body").innerHTML = rows.length ? rows.map(function (r) {
       const ok = passed(r);
       return "<tr>" +
-        '<td class="whitespace-nowrap px-5 py-2.5 font-mono text-xs">' + AF.esc(r.id) + "</td>" +
-        '<td class="px-5 py-2.5">' + AF.esc(r.task) + "</td>" +
-        '<td class="whitespace-nowrap px-5 py-2.5 capitalize text-ink-muted">' + AF.esc(label(r.category)) + "</td>" +
-        '<td class="px-5 py-2.5">' + AF.esc(r.expected) + "</td>" +
-        '<td class="whitespace-nowrap px-5 py-2.5"><span class="stamp ' + (ok ? "stamp-cleared" : "stamp-seized") + '">' + (ok ? "✓ " : "✗ ") + AF.esc(r.actual) + "</span></td>" +
-        '<td class="px-5 py-2.5 text-right tabular-nums">' + AF.esc(r.risk ?? "—") + "</td>" +
-        '<td class="px-5 py-2.5 text-right tabular-nums">' + AF.esc(r.added_ms != null ? Math.round(r.added_ms) : "—") + "</td>" +
+        '<td class="whitespace-nowrap px-4 py-2 font-mono text-xs">' + AF.esc(r.id) + "</td>" +
+        '<td class="px-4 py-2">' + AF.esc(r.task) + "</td>" +
+        '<td class="whitespace-nowrap px-4 py-2 text-ink-muted">' + AF.esc(label(r.category)) + "</td>" +
+        '<td class="px-4 py-2">' + AF.esc(r.expected) + "</td>" +
+        '<td class="whitespace-nowrap px-4 py-2"><span class="tag ' + (ok ? "tag-ok" : "tag-stop") + '">' + (ok ? "✓ " : "✗ ") + AF.esc(r.actual) + "</span></td>" +
+        '<td class="px-4 py-2 text-right tabular-nums">' + AF.esc(r.risk ?? "—") + "</td>" +
+        '<td class="px-4 py-2 text-right tabular-nums">' + AF.esc(r.added_ms != null ? Math.round(r.added_ms) : "—") + "</td>" +
         "</tr>";
-    }).join("") : '<tr><td colspan="7" class="px-5 py-6 text-center text-ink-muted">No scenarios match this filter.</td></tr>';
+    }).join("") : '<tr><td colspan="7" class="px-4 py-6 text-center text-ink-muted">No scenarios match this filter.</td></tr>';
   }
 
   document.querySelectorAll(".filter-btn").forEach(function (b) {
