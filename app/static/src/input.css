@@ -1,0 +1,176 @@
+/* Tailwind source for app/static/css/app.css.
+ * Rebuild after changing templates or scripts (see README, "Styles"):
+ *   tailwindcss -c tailwind.config.js -i app/static/src/input.css -o app/static/css/app.css --minify
+ *
+ * Design tokens (tailwind.config.js):
+ *   paper #EEF1F4 · ink #14213D · cleared #0E7C66 · hold #B86E00 · seized #C8102E · uv #6D28D9
+ *   Archivo (display, stamps) · IBM Plex Sans (body) · IBM Plex Mono (tool calls, data)
+ * Signature: the UV-lamp panel that shows what the AI read, hidden text glowing.
+ */
+
+@font-face { font-family: "Archivo"; src: url("../fonts/archivo-wdth.woff2") format("woff2-variations"), url("../fonts/archivo-wdth.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../fonts/plex-sans-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../fonts/plex-sans-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../fonts/plex-sans-600.woff2") format("woff2"); font-weight: 600 700; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fonts/plex-mono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fonts/plex-mono-600.woff2") format("woff2"); font-weight: 600 700; font-display: swap; }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { font-size: 17px; } /* a little larger so the demo reads well on a projector */
+  body {
+    @apply bg-paper font-sans text-ink;
+    /* Faint guilloché-style security pattern, like document stock. */
+    background-image:
+      repeating-linear-gradient(115deg, rgba(20,33,61,.025) 0 1px, transparent 1px 9px),
+      repeating-linear-gradient(65deg, rgba(20,33,61,.02) 0 1px, transparent 1px 11px);
+  }
+  h1, h2, h3 { text-wrap: balance; }
+  :focus-visible { outline: 3px solid theme(colors.uv.DEFAULT); outline-offset: 2px; }
+  ::selection { background: theme(colors.uv.glow); color: theme(colors.ink.DEFAULT); }
+}
+
+@layer components {
+  /* ---------- Type ---------- */
+  .display { font-family: theme(fontFamily.display); font-stretch: 112%; font-weight: 800; letter-spacing: -0.015em; line-height: 1.02; }
+  .eyebrow { font-family: theme(fontFamily.display); font-stretch: 125%; font-weight: 700; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; @apply text-ink-muted; }
+  .page-title { @apply display text-[2.1rem] sm:text-[2.6rem]; }
+  .page-lede { @apply mt-2 max-w-3xl text-[1.02rem] leading-relaxed text-ink-muted; }
+
+  /* ---------- Header ---------- */
+  .site-header { @apply bg-ink text-white; }
+  /* Security thread under the header: microprint lines in the verdict colours. */
+  .security-thread { height: 6px; background:
+      repeating-linear-gradient(90deg, theme(colors.cleared.DEFAULT) 0 18px, transparent 18px 22px, theme(colors.uv.DEFAULT) 22px 30px, transparent 30px 34px, theme(colors.hold.DEFAULT) 34px 40px, transparent 40px 44px),
+      theme(colors.ink.2); opacity: .9; }
+  .nav-link { @apply relative whitespace-nowrap rounded-md px-3 py-1.5 font-medium text-slate-300 transition hover:bg-white/10 hover:text-white; }
+  .nav-link-active { @apply bg-white/10 text-white; box-shadow: inset 0 -2px 0 theme(colors.uv.glow); }
+
+  /* ---------- Surfaces ---------- */
+  .card { @apply rounded-xl border border-rule bg-card shadow-[0_1px_0_rgba(20,33,61,.04),0_8px_24px_-16px_rgba(20,33,61,.25)]; }
+  .card-head { @apply flex items-center justify-between gap-3 border-b border-rule px-5 py-3; }
+  .card-title { font-family: theme(fontFamily.display); font-stretch: 112%; @apply text-base font-bold; }
+
+  /* ---------- Controls ---------- */
+  .input { @apply rounded-lg border border-rule bg-white px-3.5 py-2.5 text-base text-ink shadow-inner placeholder:text-ink-muted/70 focus:border-uv focus:outline-none focus:ring-4 focus:ring-uv/15 disabled:bg-paper; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45; }
+  .btn-primary { @apply bg-ink text-white shadow-sm hover:bg-ink-2; }
+  .btn-danger { @apply bg-seized text-white shadow-sm hover:bg-[#A50D26]; }
+  .btn-danger-outline { @apply border-2 border-seized bg-white text-seized hover:bg-seized-soft; }
+  .btn-secondary { @apply bg-cleared text-white shadow-sm hover:bg-[#0B6A57]; }
+  .btn-secondary-outline { @apply border-2 border-cleared bg-white text-cleared hover:bg-cleared-soft; }
+  .kbd { @apply ml-1 rounded border border-white/40 px-1.5 font-mono text-[.7rem] font-semibold; }
+
+  .chip { @apply rounded-full border border-rule bg-white px-3.5 py-1.5 text-sm font-medium text-ink-2 transition hover:border-ink hover:bg-ink hover:text-white disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white disabled:hover:text-ink-2; }
+
+  .dot { @apply inline-block h-2.5 w-2.5 shrink-0 rounded-full; }
+
+  /* ---------- Rubber stamps (verdicts) ---------- */
+  .stamp {
+    font-family: theme(fontFamily.display); font-stretch: 125%; font-weight: 800;
+    @apply inline-flex items-center whitespace-nowrap rounded-[3px] px-1.5 py-[1px] text-[.66rem] uppercase leading-tight tracking-[.12em];
+    border: 1.5px solid currentColor; transform: rotate(-2.5deg);
+    box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.85), inset 0 0 0 2.5px currentColor;
+  }
+  .stamp-cleared { @apply bg-cleared-soft text-cleared; }
+  .stamp-held { @apply bg-hold-soft text-hold-ink; }
+  .stamp-seized { @apply bg-seized-soft text-seized; }
+  .stamp-grey { @apply bg-paper text-ink-muted; }
+  .stamp-uv { @apply bg-uv-soft text-uv; }
+
+  /* Big verdict stamp shown when a reviewer decides. */
+  .verdict {
+    font-family: theme(fontFamily.display); font-stretch: 125%; font-weight: 900;
+    @apply inline-block rounded-md px-4 py-1.5 text-2xl uppercase tracking-[.14em];
+    border: 3px solid currentColor; transform: rotate(-4deg);
+    box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px currentColor;
+    animation: stamp-thud .38s cubic-bezier(.2,1.6,.4,1) both;
+  }
+  @keyframes stamp-thud { from { transform: rotate(-4deg) scale(1.9); } to { transform: rotate(-4deg) scale(1); } }
+
+  /* ---------- Chat ---------- */
+  .bubble-user { @apply max-w-[85%] rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-white shadow-sm; }
+  .bubble-agent { @apply max-w-[92%] rounded-2xl rounded-bl-md border border-rule bg-white px-4 py-3 text-ink shadow-sm; }
+  .bubble-error { @apply border-seized/40 bg-seized-soft text-seized; }
+  .spinner { @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-rule border-t-uv; }
+
+  /* ---------- Checkpoint log: each tool call is a slip passing a gate ---------- */
+  .log-lane { position: relative; }
+  .log-lane::before { content: ""; position: absolute; left: 1.55rem; top: .75rem; bottom: .75rem; width: 2px; background: repeating-linear-gradient(180deg, theme(colors.rule) 0 6px, transparent 6px 11px); }
+  .log-item { @apply relative ml-6 rounded-lg border border-rule bg-white px-3.5 py-2.5 shadow-sm; animation: slip-in .32s ease-out both; }
+  .log-item::before { content: ""; position: absolute; left: -1.05rem; top: 1rem; height: .7rem; width: .7rem; border-radius: 999px; border: 2px solid #fff; box-shadow: 0 0 0 1.5px currentColor; background: currentColor; }
+  .log-green { @apply text-cleared; }
+  .log-yellow { @apply border-hold/50 bg-hold-soft/60 text-hold; }
+  .log-red { @apply border-seized/40 bg-seized-soft/70 text-seized; }
+  .log-grey { @apply text-ink-muted; }
+  .log-item > * { color: theme(colors.ink.DEFAULT); }
+  .log-current { box-shadow: 0 0 0 2px theme(colors.uv.glow); }
+  @keyframes slip-in { from { transform: translateY(-6px); } to { transform: none; } }
+
+  /* Hold bay: the parking area of the checkpoint, edged with hazard stripes. */
+  .hold-bay { @apply relative overflow-hidden rounded-xl border border-hold/50 bg-hold-soft/70;
+    padding-top: 6px; }
+  .hold-bay::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px;
+    background: repeating-linear-gradient(135deg, theme(colors.hold.DEFAULT) 0 10px, theme(colors.ink.DEFAULT) 10px 20px); }
+  .hold-bay .log-item { @apply ml-0 border-hold/60 bg-white; }
+  .hold-bay .log-item::before { display: none; }
+
+  /* ---------- Review queue ---------- */
+  .queue-item { @apply block w-full px-5 py-3 text-left transition hover:bg-paper; }
+  .queue-item-active { @apply bg-uv-soft hover:bg-uv-soft; box-shadow: inset 4px 0 0 theme(colors.uv.DEFAULT); }
+
+  /* ---------- Evidence chain ---------- */
+  .chain { position: relative; }
+  .chain::before { content: ""; position: absolute; left: .85rem; top: .4rem; bottom: .4rem; width: 2px; background: theme(colors.rule); }
+  .chain-step { @apply relative pl-11; }
+  .ev-step { font-family: theme(fontFamily.display); font-stretch: 118%; @apply flex items-center gap-2 text-[.78rem] font-bold uppercase tracking-[.12em] text-ink-muted; }
+  .ev-num { font-family: theme(fontFamily.display); font-stretch: 100%; @apply absolute left-0 top-[-.15rem] inline-flex h-[1.8rem] w-[1.8rem] items-center justify-center rounded-full border-2 border-card bg-ink text-xs font-bold text-white ring-2 ring-rule; }
+
+  /* Risk meter: 0-100 with the policy thresholds (30 hold, 70 red) marked. */
+  .meter { @apply relative h-2.5 w-full overflow-hidden rounded-full; background: linear-gradient(90deg, rgba(255,255,255,.35) 0 30%, rgba(255,255,255,.5) 30% 70%, rgba(255,255,255,.7) 70% 100%); }
+  .meter-fill { @apply absolute inset-y-0 left-0 rounded-full bg-white; transition: width .6s cubic-bezier(.2,.8,.2,1); }
+  .meter-tick { @apply absolute inset-y-[-3px] w-[2px] bg-current opacity-60; }
+
+  /* Ordinary source text (light). */
+  .evidence-text { @apply max-h-64 overflow-auto whitespace-pre-wrap break-words px-4 py-3 font-mono text-[.82rem] leading-relaxed text-ink-2; }
+  .hl { @apply rounded bg-seized-soft px-0.5 font-semibold text-seized ring-2 ring-seized/60; }
+
+  /* SIGNATURE — the UV lamp: what the AI actually read, hidden text glowing. */
+  .uv-panel { @apply overflow-hidden rounded-xl border border-uv/50 bg-uv-deep text-uv-glow shadow-lg;
+    background-image: radial-gradient(120% 90% at 15% 0%, rgba(109,40,217,.45), transparent 60%), radial-gradient(80% 60% at 100% 100%, rgba(109,40,217,.25), transparent 70%); }
+  .uv-head { @apply flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-2.5; }
+  .uv-text { @apply max-h-72 overflow-auto whitespace-pre-wrap break-words px-4 py-4 font-mono text-[.84rem] leading-relaxed; color: rgba(217,204,255,.55); }
+  .hl-uv { @apply rounded px-1 font-semibold;
+    color: #fff; background: rgba(167,139,250,.28);
+    text-shadow: 0 0 6px #c4b5fd, 0 0 18px #8b5cf6, 0 0 32px #7c3aed;
+    box-shadow: 0 0 0 1px rgba(216,204,255,.7), 0 0 22px rgba(139,92,246,.75);
+    animation: uv-flicker 1.6s ease-in-out .2s 1; }
+  @keyframes uv-flicker { 0%, 100% { filter: brightness(1); } 10% { filter: brightness(1.8); } 16% { filter: brightness(.75); } 24% { filter: brightness(1.4); } }
+  .person-text { @apply max-h-72 overflow-auto whitespace-pre-wrap break-words bg-white px-4 py-4 text-[.95rem] leading-relaxed text-ink; }
+  .uv-toggle { @apply rounded-md border border-white/25 px-2.5 py-1 text-xs font-semibold text-uv-glow transition hover:bg-white/10; }
+
+  /* ---------- Benchmark ---------- */
+  .stat-label { @apply eyebrow; }
+  .stat-value { @apply display mt-2 text-[2.6rem] tabular-nums; }
+  .stat-sub { @apply mt-1 text-sm text-ink-muted; }
+  .tile { @apply h-7 w-7 rounded-[4px] border transition hover:scale-110; }
+  .tile-pass-attack { @apply border-cleared bg-cleared; }
+  .tile-pass-normal { @apply border-cleared bg-cleared-soft; }
+  .tile-fail { @apply border-seized bg-seized; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 2px, transparent 2px 5px); }
+  .filter-btn { @apply rounded-md px-3 py-1.5 font-medium text-ink-muted transition hover:bg-paper; }
+  .filter-btn-active { @apply bg-ink text-white hover:bg-ink; }
+
+  /* ---------- Login badge ---------- */
+  .badge-card { @apply relative overflow-hidden rounded-2xl border border-rule bg-card shadow-xl; }
+  .badge-band { @apply relative h-24 bg-ink;
+    background-image:
+      repeating-radial-gradient(circle at 18% 120%, transparent 0 9px, rgba(217,204,255,.16) 9px 10px),
+      repeating-radial-gradient(circle at 82% -20%, transparent 0 11px, rgba(14,124,102,.28) 11px 12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}

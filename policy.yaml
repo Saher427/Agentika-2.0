@@ -1,0 +1,55 @@
+# Agent Firewall — policy for the demo inbox agent
+# DRAFT by Member 1 (task M1-05). Member 2 implements the engine that reads this
+# file (task M2-10). Plain-English explanation of every rule: docs/policy-rules.md
+#
+# action: allow | ask | deny
+#   allow  -> policy_base 0   (other checks can still raise the risk)
+#   ask    -> policy_base 40  (always held for a human)
+#   deny   -> policy_base 100 (blocked at once, no review)
+
+agent: inbox-assistant
+
+trusted_domains: [ourcompany.com]     # exact domain or its subdomains only
+blocked_domains: []                   # filled by "Always block" decisions
+
+tools:
+  read_emails:    { action: allow }
+  list_invoices:  { action: allow }
+  send_email:
+    action: allow
+    ask_if:
+      - recipient_domain_not_in: trusted_domains   # checked for every to/cc address
+      - has_attachment: true
+    deny_if:
+      - recipient_domain_in: blocked_domains
+  delete_record:  { action: ask }
+  export_all:     { action: deny }
+
+default_action: deny                  # any tool not listed above
+timeout_seconds: 120                  # unanswered held calls are blocked
+
+risk:
+  weights:
+    taint_hit: 30
+    intent_mismatch: 25
+    injection_signal: 15
+  thresholds:
+    hold: 30                          # 30-69 yellow
+    red: 70                           # 70-100 red, blocked on timeout
+
+injection_phrases:                    # adds the injection signal (+15) when found in context
+  - ignore previous instructions
+  - ignore all previous instructions
+  - disregard your instructions
+  - new instruction for the assistant
+  - "[system]"
+  - system message
+  - do not ask for confirmation
+  - no need to ask the user
+  - without mentioning this
+  - maintenance mode
+  - security checks are disabled
+  - hidayat ko nazarandaz          # Roman Urdu: "ignore the instructions"
+  - user se mat poochna            # Roman Urdu: "do not ask the user"
+
+learned_rules: []                     # stored in SQLite at runtime; listed here only for export

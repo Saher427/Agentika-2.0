@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Benchmark · Agent Firewall{% endblock %}
+{% block content %}
+<div class="mb-6">
+  <p class="eyebrow">Audit sheet</p>
+  <h1 class="page-title mt-1">We attacked our own agent.</h1>
+  <p class="page-lede">20 attack scenarios and 20 normal tasks, run through the real agent and checkpoint. These are the numbers from our latest run, not estimates.</p>
+</div>
+
+<div id="bench-mock" class="mb-6 hidden rounded-xl border-2 border-dashed border-hold bg-hold-soft px-5 py-4 text-hold-ink">
+  <p class="flex items-center gap-3 font-bold"><span class="stamp stamp-held">Mock</span>These are not real results</p>
+  <p class="mt-1 text-sm">The numbers come from the local mock API used to build this page. Run the benchmark on the real firewall before showing it to anyone.</p>
+</div>
+
+<div id="bench-empty" class="card hidden p-10 text-center">
+  <p class="display text-xl">No benchmark run yet</p>
+  <p class="mt-2 text-ink-muted">Run <code class="rounded bg-paper px-1.5 py-0.5 font-mono">python bench/run_bench.py</code>, then reload this page.</p>
+</div>
+
+<div id="bench-error" class="card hidden border-seized/40 bg-seized-soft p-6 text-seized"></div>
+
+<div id="bench" class="hidden">
+  <!-- Ledger -->
+  <div class="card grid divide-y divide-rule sm:grid-cols-2 sm:divide-x lg:grid-cols-4 lg:divide-y-0">
+    <div class="p-5"><p class="stat-label">Attacks caught</p><p class="stat-value text-cleared"><span id="s-catch">—</span></p><p class="stat-sub" id="s-catch-sub"></p></div>
+    <div class="p-5"><p class="stat-label">False alarms</p><p class="stat-value"><span id="s-fa">—</span></p><p class="stat-sub" id="s-fa-sub"></p></div>
+    <div class="p-5"><p class="stat-label">Added delay per safe call</p><p class="stat-value"><span id="s-delay">—</span></p><p class="stat-sub" id="s-delay-sub"></p></div>
+    <div class="p-5"><p class="stat-label">Calls a person reviewed</p><p class="stat-value"><span id="s-work">—</span></p><p class="stat-sub" id="s-work-sub"></p></div>
+  </div>
+  <p class="mt-3 font-mono text-xs text-ink-muted" id="bench-meta"></p>
+
+  <!-- One tile per scenario -->
+  <section class="card mt-6 p-5" aria-labelledby="tiles-heading">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 id="tiles-heading" class="card-title">Every scenario at a glance</h2>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-muted">
+        <span class="flex items-center gap-1.5"><span class="tile tile-pass-attack !h-3.5 !w-3.5"></span>attack stopped</span>
+        <span class="flex items-center gap-1.5"><span class="tile tile-pass-normal !h-3.5 !w-3.5"></span>normal task allowed</span>
+        <span class="flex items-center gap-1.5"><span class="tile tile-fail !h-3.5 !w-3.5"></span>not as expected</span>
+      </div>
+    </div>
+    <div class="mt-4 grid gap-5 sm:grid-cols-2">
+      <div><p class="eyebrow mb-2">Attacks</p><div id="tiles-attack" class="flex flex-wrap gap-1.5"></div></div>
+      <div><p class="eyebrow mb-2">Normal tasks</p><div id="tiles-normal" class="flex flex-wrap gap-1.5"></div></div>
+    </div>
+  </section>
+
+  <section class="card mt-6" aria-labelledby="cat-heading">
+    <div class="card-head"><h2 id="cat-heading" class="card-title">By category</h2></div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="eyebrow bg-paper/70">
+          <tr><th class="px-5 py-2.5">Category</th><th class="px-5 py-2.5">Type</th><th class="px-5 py-2.5 text-right">Scenarios</th><th class="px-5 py-2.5 text-right">As expected</th></tr>
+        </thead>
+        <tbody id="cat-body" class="divide-y divide-rule"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card mt-6" aria-labelledby="res-heading">
+    <div class="card-head flex-wrap">
+      <h2 id="res-heading" class="card-title">Every scenario</h2>
+      <div class="flex gap-1 text-sm" role="group" aria-label="Filter scenarios">
+        <button type="button" class="filter-btn filter-btn-active" data-filter="all">All</button>
+        <button type="button" class="filter-btn" data-filter="attack">Attacks</button>
+        <button type="button" class="filter-btn" data-filter="normal">Normal</button>
+        <button type="button" class="filter-btn" data-filter="failed">Not as expected</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="eyebrow bg-paper/70">
+          <tr>
+            <th class="px-5 py-2.5">ID</th><th class="px-5 py-2.5">Task</th><th class="px-5 py-2.5">Category</th>
+            <th class="px-5 py-2.5">Expected</th><th class="px-5 py-2.5">Result</th><th class="px-5 py-2.5 text-right">Risk</th><th class="px-5 py-2.5 text-right">Added ms</th>
+          </tr>
+        </thead>
+        <tbody id="res-body" class="divide-y divide-rule"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/bench.js"></script>{% endblock %}

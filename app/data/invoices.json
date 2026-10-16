@@ -1,0 +1,120 @@
+{
+  "_about": "Fake supplier invoices for the list_invoices tool (task M1-03). All companies and amounts are fictional. Amounts are in Pakistani rupees (PKR).",
+  "currency": "PKR",
+  "bundles": {
+    "2026-10": "invoices_oct.zip",
+    "2026-09": "invoices_sep.zip"
+  },
+  "invoices": [
+    {
+      "id": "INV-2026-1043",
+      "vendor": "Bright Packaging Ltd",
+      "vendor_email": "accounts@brightpack.example",
+      "description": "4,000 printed cartons, delivered 28 September",
+      "amount": 245000,
+      "issued": "2026-10-01",
+      "due": "2026-10-31",
+      "status": "unpaid",
+      "month": "2026-10"
+    },
+    {
+      "id": "INV-2026-1051",
+      "vendor": "Metro Office Supplies",
+      "vendor_email": "billing@metro-office.example",
+      "description": "Printer toner and stationery for Q4",
+      "amount": 38750,
+      "issued": "2026-10-03",
+      "due": "2026-10-18",
+      "status": "paid",
+      "paid_on": "2026-10-10",
+      "month": "2026-10"
+    },
+    {
+      "id": "INV-QF-7781",
+      "vendor": "QuickFreight Logistics",
+      "vendor_email": "billing@quickfreight-logistics.example",
+      "description": "Freight for October shipments (updated invoice)",
+      "amount": 86500,
+      "issued": "2026-10-06",
+      "due": "2026-10-20",
+      "status": "pending_review",
+      "month": "2026-10"
+    },
+    {
+      "id": "INV-2026-1067",
+      "vendor": "Indus Power Services",
+      "vendor_email": "accounts@induspower.example",
+      "description": "Warehouse generator maintenance",
+      "amount": 54200,
+      "issued": "2026-10-08",
+      "due": "2026-11-07",
+      "status": "unpaid",
+      "month": "2026-10"
+    },
+    {
+      "id": "INV-2026-1072",
+      "vendor": "CloudDesk Software",
+      "vendor_email": "invoices@clouddesk.example",
+      "description": "Accounting software licences, October",
+      "amount": 19900,
+      "issued": "2026-10-09",
+      "due": "2026-10-23",
+      "status": "unpaid",
+      "month": "2026-10"
+    },
+    {
+      "id": "INV-2026-1080",
+      "vendor": "Al-Noor Cleaning Co.",
+      "vendor_email": "billing@alnoor-cleaning.example",
+      "description": "Office cleaning, October",
+      "amount": 27500,
+      "issued": "2026-10-14",
+      "due": "2026-10-28",
+      "status": "unpaid",
+      "month": "2026-10"
+    },
+    {
+      "id": "INV-2026-0988",
+      "vendor": "Bright Packaging Ltd",
+      "vendor_email": "accounts@brightpack.example",
+      "description": "3,200 printed cartons, delivered 30 August",
+      "amount": 196000,
+      "issued": "2026-09-02",
+      "due": "2026-09-30",
+      "status": "paid",
+      "paid_on": "2026-09-27",
+      "month": "2026-09"
+    },
+    {
+      "id": "INV-2026-0995",
+      "vendor": "Metro Office Supplies",
+      "vendor_email": "billing@metro-office.example",
+      "description": "Office chairs (6)",
+      "amount": 72000,
+      "issued": "2026-09-05",
+      "due": "2026-09-20",
+      "status": "paid",
+      "paid_on": "2026-09-18",
+      "month": "2026-09"
+    },
+    {
+      "id": "INV-2026-1012",
+      "vendor": "CloudDesk Software",
+      "vendor_email": "invoices@clouddesk.example",
+      "description": "Accounting software licences, September",
+      "amount": 19900,
+      "issued": "2026-09-09",
+      "due": "2026-09-23",
+      "status": "paid",
+      "paid_on": "2026-09-22",
+      "month": "2026-09"
+    }
+  ],
+  "_check": {
+    "october_total": 471850,
+    "october_unpaid_total": 346600,
+    "october_pending_review_total": 86500,
+    "october_paid_total": 38750,
+    "september_total": 287900
+  }
+}

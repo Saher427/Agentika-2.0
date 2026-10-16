@@ -1,0 +1,22 @@
+{
+  "v": 4,
+  "createdOnFiles": { "v": 1, "at": "2026-10-16T19:05:00Z" },
+  "lists": "css",
+  "title": "Agent Firewall — Agentika 2.0 pitch",
+  "order": ["cover", "problem", "solution", "how", "demo", "stack", "results", "close"],
+  "cover": "cover",
+  "sections": {
+    "s1": { "description": "Who we are and the one-line idea", "start": "cover" },
+    "s2": { "description": "The problem: prompt injection makes agents act for attackers", "start": "problem" },
+    "s3": { "description": "The solution and how its three checks work", "start": "solution" },
+    "s4": { "description": "The live demo on Alternate Clouds", "start": "demo" },
+    "s5": { "description": "How we built it and our real benchmark results", "start": "stack" },
+    "s6": { "description": "Close: Human + AI, better together", "start": "close" }
+  },
+  "faces": {
+    "archivo": { "family": "Archivo", "href": "https://fonts.googleapis.com/css2?family=Archivo:wght@400..900&display=swap" },
+    "ibm-plex-sans": { "family": "IBM Plex Sans", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" },
+    "ibm-plex-mono": { "family": "IBM Plex Mono", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" }
+  },
+  "designSystems": []
+}

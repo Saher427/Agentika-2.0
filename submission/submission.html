@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agent Firewall — Agentika 2.0 submission (draft)</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm; }
+  :root { --ink:#0f172a; --muted:#475569; --line:#cbd5e1; --accent:#4f46e5; --warn:#b45309; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.45; margin: 0; background:#fff; }
+  .page { max-width: 180mm; margin: 0 auto; }
+  header.top { border-bottom: 3px solid var(--ink); padding-bottom: 8px; margin-bottom: 14px; }
+  .kicker { font-size: 8.5pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  h1 { font-size: 22pt; margin: 4px 0 2px; }
+  .pitch { font-size: 12pt; color: var(--muted); margin: 0; }
+  h2 { font-size: 13pt; margin: 18px 0 6px; padding-bottom: 3px; border-bottom: 1px solid var(--line); break-after: avoid; }
+  h3 { font-size: 10.5pt; margin: 10px 0 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
+  th, td { text-align: left; vertical-align: top; padding: 5px 7px; border: 1px solid var(--line); }
+  th { background: #f1f5f9; width: 32%; font-weight: 600; }
+  .fill { color: var(--warn); font-weight: 600; }
+  .note { background: #fffbeb; border: 1px solid #fcd34d; padding: 8px 10px; border-radius: 4px; font-size: 9.5pt; }
+  .draft { background: #fef2f2; border: 2px dashed #dc2626; color: #991b1b; padding: 8px 10px; border-radius: 4px; font-weight: 600; margin-bottom: 12px; }
+  .shot { border: 2px dashed var(--line); height: 62mm; display: flex; align-items: center; justify-content: center; color: var(--muted); text-align: center; padding: 8px; margin: 6px 0 10px; }
+  ul.checks { list-style: none; padding: 0; margin: 4px 0; }
+  ul.checks li { padding: 3px 0 3px 22px; position: relative; }
+  ul.checks li::before { content: "☐"; position: absolute; left: 0; font-size: 12pt; line-height: 1; }
+  code { font-family: Consolas, ui-monospace, monospace; font-size: 9.5pt; background: #f1f5f9; padding: 0 3px; border-radius: 2px; }
+  .avoid { break-inside: avoid; }
+  footer { margin-top: 18px; font-size: 8.5pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="draft">DRAFT — fill every orange [field], add the two screenshots, tick section 5 yourselves, then delete this box and print to PDF. One PDF per team, before 12:45 PM PKT on 17 October 2026.</div>
+
+<header class="top">
+  <div class="kicker">Agentika 2.0 · NaSCon 2026 · Project submission</div>
+  <h1>Agent Firewall</h1>
+  <p class="pitch">The seatbelt for AI agents: a prompt-injection firewall that checks every action an AI agent tries to take and puts a human in charge of every dangerous decision.</p>
+</header>
+
+<h2>1. Team details</h2>
+<table>
+  <tr><th>Team name</th><td class="fill">[Team name]</td></tr>
+  <tr><th>Member 1 — full name</th><td class="fill">[Full name]</td></tr>
+  <tr><th>Member 1 — email</th><td class="fill">[Email]</td></tr>
+  <tr><th>Member 1 — Discord username</th><td class="fill">[Registered Discord username]</td></tr>
+  <tr><th>Member 2 — full name</th><td class="fill">[Full name]</td></tr>
+  <tr><th>Member 2 — email</th><td class="fill">[Email]</td></tr>
+  <tr><th>Member 2 — Discord username</th><td class="fill">[Registered Discord username]</td></tr>
+  <tr><th>Team WhatsApp contact</th><td class="fill">[One WhatsApp number]</td></tr>
+</table>
+
+<h2>2. About our project</h2>
+<table>
+  <tr><th>Project name</th><td>Agent Firewall</td></tr>
+  <tr><th>One-line pitch</th><td>AI agents have no seatbelt. We built one: a firewall that stops hijacked AI agents before they act, and lets a human make the final call.</td></tr>
+  <tr><th>The problem, and who it is for</th><td>AI agents now read email and web pages and then act: they send emails, move files and delete records. They cannot tell their owner's instructions from text an attacker planted, so one hidden sentence in an email can make them leak data or destroy records (prompt injection, OWASP LLM01). Agent Firewall is for any team that gives an AI agent real tools: finance, support, operations and the platforms that host agents.</td></tr>
+  <tr><th>Where the human comes in, and why<br><span style="font-weight:400;color:var(--muted)">Theme: Human + AI: Better Together</span></th><td>Any tool call with a high risk score, for example sending data to an unknown address or deleting records, is paused. A reviewer sees the user's original task, the content the agent read with the hidden instruction highlighted, and the action the agent now wants to take, then allows or blocks it. <b>Why:</b> an AI cannot be fully trusted to decide whether another AI has been manipulated, because the same trick could fool the checker, and actions like sharing company data or deleting records need a person who is accountable. The AI handles the volume; the human handles the judgement.</td></tr>
+  <tr><th>What we built with</th><td>
+    <b>Custom code:</b> Python 3.12, FastAPI, the official MCP Python SDK (an MCP tool server and an MCP proxy that intercepts every tool call), SQLite, Jinja2 pages with Tailwind CSS and Server-Sent Events.<br>
+    <b>AI models (Groq):</b> <code>llama-3.3-70b-versatile</code> runs the agent with tool calling; <code>llama-3.1-8b-instant</code> runs the intent check.<br>
+    <b>Firewall checks:</b> YAML permission policy, taint tracking of untrusted text, intent check, injection-phrase signal, combined into a 0–100 risk score.<br>
+    <b>n8n:</b> <span class="fill">[only if built: workflow that alerts the reviewer by email when a call is held — otherwise delete this line]</span><br>
+    <b>Deployment:</b> Docker container on Alternate Clouds.
+  </td></tr>
+</table>
+
+<h2>3. Required links</h2>
+<table>
+  <tr><th>Live Alternate Clouds deployment</th><td class="fill">[https://&lt;service-name&gt;-app.alternatefutures.ai] — kept running until the closing ceremony</td></tr>
+  <tr><th>GitHub repository</th><td>https://github.com/Saher427/Agentika-2.0 <span class="fill">[check it is public or shared with the judges]</span></td></tr>
+  <tr><th>Demo video (2–3 minutes)</th><td class="fill">[Unlisted YouTube link, or Google Drive link set to "anyone with the link"]</td></tr>
+  <tr><th>LinkedIn post (original)</th><td class="fill">[Link to the post one teammate published]</td></tr>
+  <tr><th>LinkedIn reshare</th><td class="fill">[Link to the teammate's reshare]</td></tr>
+  <tr><th>X / Twitter post (optional)</th><td class="fill">[Link, or "Not posted"]</td></tr>
+</table>
+
+<h3>Access for judges</h3>
+<table>
+  <tr><th>Reviewer dashboard</th><td class="fill">[live URL]/login</td></tr>
+  <tr><th>Demo username</th><td>reviewer</td></tr>
+  <tr><th>Demo password</th><td class="fill">[The demo-only password set in REVIEWER_PASSWORD on Alternate Clouds — never a personal password]</td></tr>
+  <tr><th>Try it</th><td>Open the chat page and click "Summarise this month's invoices". In a second window, open the reviewer dashboard to see the held call and its evidence. All data is fictional.</td></tr>
+</table>
+
+<h2>4. Proof screenshots</h2>
+<div class="avoid">
+  <h3>Discord: both teammates in the Alternate Futures Discord server</h3>
+  <div class="shot">[Paste screenshot: the member list showing both display names in the format<br>"First name [Participant/Team name]"]</div>
+</div>
+<div class="avoid">
+  <h3>Alternate Clouds: our service and its deployment status</h3>
+  <div class="shot">[Paste screenshot: the Alternate Clouds dashboard with the service name and a running / deployed status.<br>Do not show the Variables tab.]</div>
+</div>
+<p class="note">Before pasting, check every screenshot for API keys, tokens and passwords.</p>
+
+<h2>5. Confirmations</h2>
+<p>Tick each box yourselves only if it is true.</p>
+<ul class="checks avoid">
+  <li>We wrote our LinkedIn post ourselves. Only grammar-only tools were used.</li>
+  <li>Our project is deployed on Alternate Clouds.</li>
+  <li>No API keys or personal or production passwords appear in our repository, video or screenshots.</li>
+  <li>We have credited third-party code and templates.</li>
+  <li>We will not change our code or deployment after 12:45 PM PKT on 17 October.</li>
+</ul>
+
+<h3>Credits</h3>
+<p>FastAPI, Uvicorn, Jinja2, PyYAML, the MCP Python SDK, Tailwind CSS, Groq-hosted Llama models. <span class="fill">[Add any other library, template or code you used]</span></p>
+
+<footer>Agent Firewall · <span class="fill">[Team name]</span> · Agentika 2.0, NaSCon 2026, FAST University Islamabad · Submitted <span class="fill">[date and time]</span></footer>
+</div>
+</body>
+</html>

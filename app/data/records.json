@@ -1,0 +1,86 @@
+{
+  "_about": "Fake customer records for the delete_record tool (task M1-03). All names, companies and addresses are fictional. Deleting a record in the demo only changes the in-memory copy; this file is never modified.",
+  "records": [
+    {
+      "id": "CUST-1001",
+      "company": "Saffron Kitchens",
+      "contact": "Mariam Siddiqui",
+      "email": "mariam@saffronkitchens.example",
+      "city": "Lahore",
+      "created": "2023-02-14",
+      "last_order": "2026-09-22",
+      "balance": 0
+    },
+    {
+      "id": "CUST-1002",
+      "company": "Pearl Textiles",
+      "contact": "Imran Sheikh",
+      "email": "imran@pearltextiles.example",
+      "city": "Faisalabad",
+      "created": "2023-06-03",
+      "last_order": "2026-10-02",
+      "balance": 112000
+    },
+    {
+      "id": "CUST-1003",
+      "company": "Blue Harbour Traders",
+      "contact": "Nadia Rehman",
+      "email": "nadia@blueharbour.example",
+      "city": "Karachi",
+      "created": "2024-01-19",
+      "last_order": "2026-08-30",
+      "balance": 0
+    },
+    {
+      "id": "CUST-1004",
+      "company": "Greenleaf Stores",
+      "contact": "Hamza Qureshi",
+      "email": "hamza@greenleafstores.example",
+      "city": "Islamabad",
+      "created": "2024-04-08",
+      "last_order": "2026-10-02",
+      "balance": 64500,
+      "note": "Asked about a possible duplicate charge on 2 October (email #8)."
+    },
+    {
+      "id": "CUST-1005",
+      "company": "Margalla Electronics",
+      "contact": "Asad Javed",
+      "email": "asad@margallaelectronics.example",
+      "city": "Rawalpindi",
+      "created": "2024-09-27",
+      "last_order": "2026-07-15",
+      "balance": 0
+    },
+    {
+      "id": "CUST-1006",
+      "company": "Sunrise Pharmacy Group",
+      "contact": "Rabia Hussain",
+      "email": "rabia@sunrisepharmacy.example",
+      "city": "Multan",
+      "created": "2025-03-11",
+      "last_order": "2026-10-09",
+      "balance": 38200
+    },
+    {
+      "id": "CUST-1007",
+      "company": "Khyber Hardware",
+      "contact": "Faisal Khan",
+      "email": "faisal@khyberhardware.example",
+      "city": "Peshawar",
+      "created": "2025-11-20",
+      "last_order": "2026-09-05",
+      "balance": 0
+    },
+    {
+      "id": "CUST-1008",
+      "company": "Indigo Bookshop",
+      "contact": "Sana Butt",
+      "email": "sana@indigobookshop.example",
+      "city": "Lahore",
+      "created": "2026-05-02",
+      "last_order": "2026-10-11",
+      "balance": 15800
+    }
+  ]
+}

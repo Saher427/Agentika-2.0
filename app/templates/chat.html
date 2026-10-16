@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Agent chat · Agent Firewall{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <p class="eyebrow">Inbox assistant · Fatima Noor, Crescent Trading Co.</p>
+    <h1 class="page-title mt-1">Give the agent a task.<br class="hidden sm:block"> Watch every action it takes.</h1>
+    <p class="page-lede">Each tool call stops at the checkpoint first. Safe calls are cleared at once. Risky calls wait for a human reviewer.</p>
+  </div>
+</div>
+
+<div class="grid gap-6 lg:grid-cols-5">
+  <!-- Conversation -->
+  <section class="card flex min-h-[34rem] flex-col lg:col-span-3" aria-labelledby="chat-heading">
+    <div class="card-head">
+      <h2 id="chat-heading" class="card-title">Conversation</h2>
+      <span class="font-mono text-xs text-ink-muted">13 emails · 3 carry hidden instructions</span>
+    </div>
+
+    <div id="messages" class="flex-1 space-y-4 overflow-y-auto px-5 py-5" aria-live="polite">
+      <div id="empty-chat" class="rounded-xl border border-dashed border-rule bg-paper/60 p-5">
+        <p class="font-semibold">Start with a suggestion below.</p>
+        <p class="mt-1 text-sm text-ink-muted">"Summarise this month's invoices" reads email #7, which hides an instruction in white text. The agent will fall for it. The checkpoint will not.</p>
+      </div>
+    </div>
+
+    <div class="border-t border-rule px-5 py-4">
+      <div class="mb-3 flex flex-wrap gap-2" id="suggestions">
+        {% for task in suggested_tasks %}
+        <button type="button" class="chip" data-task="{{ task }}">{{ task }}</button>
+        {% endfor %}
+      </div>
+      <form id="chat-form" class="flex gap-2" autocomplete="off">
+        <label for="task-input" class="sr-only">Task for the agent</label>
+        <input id="task-input" name="task" type="text" maxlength="500" required
+               class="input flex-1" placeholder="For example: List invoices for October">
+        <button id="send-btn" type="submit" class="btn btn-primary">Send</button>
+      </form>
+      <p id="chat-status" class="mt-2 hidden text-sm text-ink-muted" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- Checkpoint log -->
+  <section class="card flex min-h-[34rem] flex-col lg:col-span-2" aria-labelledby="log-heading">
+    <div class="card-head">
+      <h2 id="log-heading" class="card-title">Checkpoint log</h2>
+      <span id="stream-state" class="flex items-center gap-1.5 font-mono text-xs text-ink-muted"><span class="dot bg-slate-400"></span>Connecting…</span>
+    </div>
+    <!-- Hold bay: calls parked until a person decides -->
+    <div class="hold-bay mx-4 mt-4" aria-labelledby="bay-heading">
+      <div class="flex items-center justify-between gap-2 px-3 pt-2.5">
+        <h3 id="bay-heading" class="eyebrow !text-hold-ink">Hold bay</h3>
+        <span id="bay-count" class="font-mono text-xs font-semibold text-hold-ink">0 waiting</span>
+      </div>
+      <ul id="bay" class="space-y-2 px-2 pb-2 pt-1.5" aria-live="assertive">
+        <li id="empty-bay" class="px-1 py-2 text-sm text-hold-ink/80">Empty. Risky calls park here until a reviewer decides.</li>
+      </ul>
+    </div>
+    <p class="eyebrow mx-5 mt-4">Inspection lane</p>
+    <ul id="log" class="log-lane flex-1 space-y-2.5 overflow-y-auto px-4 pb-4 pt-2" aria-live="polite">
+      <li id="empty-log" class="ml-6 py-6 text-sm text-ink-muted">Every tool call the agent makes is inspected and stamped here, in order.</li>
+    </ul>
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-rule px-5 py-3 text-xs text-ink-muted">
+      <span class="stamp stamp-cleared">Cleared</span><span>safe, went through</span>
+      <span class="stamp stamp-held">Held</span><span>waiting for a person</span>
+      <span class="stamp stamp-seized">Blocked</span><span>stopped</span>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/chat.js"></script>{% endblock %}
